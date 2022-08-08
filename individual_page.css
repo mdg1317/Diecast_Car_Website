@@ -1,0 +1,24 @@
+.row {
+  display: flex;
+}
+
+.column {
+  flex: 33.33%;
+  padding: 5px;
+  text-align: center;
+}
+
+/* Clearfix (clear floats) */
+.row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.column img {
+	margin-top: 8px;
+  	vertical-align: middle;
+    display: block;
+    max-width: 100%;
+    height: auto;
+}
