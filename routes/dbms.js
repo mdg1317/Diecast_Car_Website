@@ -1,3 +1,4 @@
+// Route used to access database and dump data
 var mysql = require("mysql");
 var async = require("async");
 
@@ -29,8 +30,8 @@ exports.dbquery = function(query_str, callback) {
 		function(rows, results, callback) {
 			console.log("Dumping data...\n");
 			results = rows;
-			console.log(results);
-			callback(null);
+			//console.log(results);
+			callback(null, results);
 		}
 	],
 	
