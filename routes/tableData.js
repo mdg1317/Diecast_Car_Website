@@ -8,13 +8,17 @@
 
 // Necessary requires
 var express = require("express");
+var bodyParser = require("body-parser");
 var router = express.Router();
 var server = require("./dbms.js");
 
+var jsonParser = bodyParser.json();
+
 // Request the table data
-router.post("/", function(req, res, next) {
+router.post("/", jsonParser, function(req, res, next) {
 	console.log("Accessing table from SQL server");
-	server.dbquery("SELECT * FROM carInfo;", receiveData);
+	console.log(req.body.searchString);
+	server.dbquery(req.body.searchString, receiveData);
 
 	// Helper function to process the data from the query
 	function receiveData(err, results) {

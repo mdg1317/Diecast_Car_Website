@@ -7,6 +7,7 @@
 
 // Necessary requires
 var express = require("express");
+var bodyParser = require("body-parser");
 var path = require("path");
 var app = express();
 
@@ -21,6 +22,15 @@ app.use("/tableData", tableRouter);
 // Use all files in public directory for web display
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Handle /null route
+// Mostly did this just to get rid of the error
+// May improve later
+app.get('/null', (req, res) => {
+  res.send("Error 404");
+})
 
 // Start listening on port 5000
 app.listen(5000, () => {

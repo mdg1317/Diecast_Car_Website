@@ -6,12 +6,16 @@
 // This script loads the full table from the SQL database and displays it on
 // both the main and individual pages
 
-const loadTable = async () => {
+const loadTable = async (queryString) => {
 	console.log("Attempting to access table...");
-
-	// Send a POST request invoking "/tableData" route found in app.js
+	// Send a POST request invoking "/tableData" route found in app.js containing
+	// the proper SQL query depending on initial load/search term(s)
 	$.post({
+		traditional: true,
 		url: "/tableData",
+		data: JSON.stringify({searchString: queryString}),
+		dataType: "json",
+		contentType: "application/json; charset=utf-8",
 		success: function(data, ) {
 			console.log("Successfully accessed table");
 			console.log(data);
@@ -38,6 +42,8 @@ function loadPage(data){
 function populateMain(data){
 	var i,j,k;
 	var currentRow;
+	var pageID;
+	//console.log(data[0].id);
 	for(i = 0; i < data.length / 5; i++){
 		// Create new "div" element for a new row
 		currentRow = document.createElement("div");
@@ -46,18 +52,25 @@ function populateMain(data){
 
 		// Populate row with 5 columns
 		for(j = i * 5; j < (i + 1) * 5; j++){
+			if(j < data.length){
+				pageID = data[j].id;
+			} else {
+				pageID = -1;
+			}
 			var newDiv = document.createElement("div");
 			var newLink = document.createElement("a");
 			var newImg = document.createElement("img");
 			var newP = document.createElement("p");
 
 			newDiv.setAttribute("class", "column");
-			newLink.href = "individual_page.html?" + j;
+			newLink.href = "individual_page.html?" + pageID;
 
-			newImg.setAttribute("id", "image" + j);
+			//console.log(data[carIndex].id);
+
+			newImg.setAttribute("id", "image" + pageID);
 			//newImg.setAttribute("alt", "No image available");
 
-			newP.setAttribute("id", "result" + j);
+			newP.setAttribute("id", "result" + pageID);
 
 			newLink.appendChild(newImg);
 			newLink.appendChild(newP);
@@ -70,8 +83,8 @@ function populateMain(data){
 	}
 	// Add table data into newly created rows
 	for(k = 0; k < data.length; k++){
-		document.getElementById("result" + k).innerHTML = data[k].number + " - " + data[k].driver;
-		document.getElementById("image" + k).src = data[k].imageCar;
+		document.getElementById("result" + data[k].id).innerHTML = data[k].number + " - " + data[k].driver;
+		document.getElementById("image" + data[k].id).src = data[k].imageCar;
 	}
 }
 
@@ -90,5 +103,46 @@ function populateIndividual(data, carID){
 	document.getElementById("imageDriver").src = data[carID].imageDriver;
 }
 
-// This function is called upon page load
-loadTable();
+function clearTable() {
+	// Delete all previously created rows
+	// NOT GREAT
+	// IMPROVE LATER
+	var i;
+	for(i = 200; i > -1; i--){
+		var thisRow = document.getElementById("row" + i);
+		if(thisRow){
+			thisRow.remove();
+		}
+	}
+}
+
+$(document).ready(function() {
+	// Load all table entries when first loading page
+	loadTable("SELECT * FROM carInfo");
+
+	if(window.location.href.indexOf("individual_page") == -1) {
+		var submit = document.getElementById("submitButton");
+		submit.addEventListener("click", function() {
+			var queryString;
+			var searchString = document.getElementById("searchBar").value;
+
+			// If "Submit" is hit when search bar is empty, load all table entries
+			if(!searchString){
+				queryString = "SELECT * FROM carInfo";
+			} else {
+				//queryString = 'SELECT * FROM carInfo WHERE "' + searchString + '" IN (driver, number, series, sponsor, manufacturer, year)'
+				queryString = 'SELECT * FROM carInfo WHERE \
+					driver LIKE "%' + searchString + '%" OR \
+					"' + searchString + '" IN (number) OR \
+					series LIKE "%' + searchString + '%" OR \
+					sponsor LIKE "%' + searchString + '%" OR \
+					"' + searchString + '" IN (manufacturer) OR \
+					"' + searchString + '" IN (year)';
+			}
+
+			// Reload table based on search term(s)
+			clearTable();
+			loadTable(queryString);
+		});
+	}
+});
