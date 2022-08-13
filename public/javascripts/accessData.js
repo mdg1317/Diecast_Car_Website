@@ -24,11 +24,33 @@ function loadPage(data){
 }
 
 function populateMain(data){
-	var i;
-	for(i = 0; i < 10; i++){
-		document.getElementById("result" + i).innerHTML = data[i].number + " - " + data[i].driver;
-		document.getElementById("image" + i).src = data[i].imageCar;
+	var i,j;
+	var currentRow;
+	for(i = 0; i < 2; i++){
+		currentRow = document.getElementById("row" + i);
+		for(j = i * 5; j < (i + 1) * 5; j++){
+			var newDiv = document.createElement("div");
+			var newLink = document.createElement("a");
+			var newImg = document.createElement("img");
+			var newP = document.createElement("p");
+
+			newDiv.setAttribute("class", "column");
+			newLink.href = "individual_page.html?" + j;
+
+			newImg.setAttribute("id", "image" + j);
+			newImg.src = data[j].imageCar;
+			newImg.setAttribute("alt", "No image available");
+
+			newP.setAttribute("id", "result" + j);
+			newP.innerHTML = data[j].number + " - " + data[j].driver;
+
+			newLink.appendChild(newImg);
+			newLink.appendChild(newP);
+			newDiv.appendChild(newLink);
+			currentRow.appendChild(newDiv);
+		}
 	}
+
 }
 
 function populateIndividual(data, carID){
