@@ -23,6 +23,16 @@
     height: auto;
 }
 
+.search {
+  margin: auto;
+  width: 100%;
+  text-align: center;
+}
+
+.search input {
+  width: 50%;
+}
+
 /* Pagination links */
 .pagination a {
   color: black;
