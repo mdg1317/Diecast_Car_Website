@@ -116,33 +116,45 @@ function clearTable() {
 	}
 }
 
+function searchCar() {
+	var queryString;
+	var searchString = document.getElementById("searchBar").value;
+
+	// If "Submit" is hit when search bar is empty, load all table entries
+	if(!searchString){
+		queryString = "SELECT * FROM carInfo";
+	} else {
+		// NOTE: THIS QUERY ONLY SUPPORTS ONE TYPE OF FIELD
+		// ADD MULTIPLE FIELDS FUNCTIONALITY LATER
+		queryString = 'SELECT * FROM carInfo WHERE \
+			driver LIKE "%' + searchString + '%" OR \
+			"' + searchString + '" IN (number) OR \
+			series LIKE "%' + searchString + '%" OR \
+			sponsor LIKE "%' + searchString + '%" OR \
+			"' + searchString + '" IN (manufacturer) OR \
+			"' + searchString + '" IN (year)';
+	}
+
+	// Reload table based on search term(s)
+	clearTable();
+	loadTable(queryString);
+}
+
 $(document).ready(function() {
 	// Load all table entries when first loading page
 	loadTable("SELECT * FROM carInfo");
 
 	if(window.location.href.indexOf("individual_page") == -1) {
-		var submit = document.getElementById("submitButton");
-		submit.addEventListener("click", function() {
-			var queryString;
-			var searchString = document.getElementById("searchBar").value;
+		var searchField = document.getElementById("searchBar");
+		var submitButton = document.getElementById("submitButton");
 
-			// If "Submit" is hit when search bar is empty, load all table entries
-			if(!searchString){
-				queryString = "SELECT * FROM carInfo";
-			} else {
-				//queryString = 'SELECT * FROM carInfo WHERE "' + searchString + '" IN (driver, number, series, sponsor, manufacturer, year)'
-				queryString = 'SELECT * FROM carInfo WHERE \
-					driver LIKE "%' + searchString + '%" OR \
-					"' + searchString + '" IN (number) OR \
-					series LIKE "%' + searchString + '%" OR \
-					sponsor LIKE "%' + searchString + '%" OR \
-					"' + searchString + '" IN (manufacturer) OR \
-					"' + searchString + '" IN (year)';
+		searchField.addEventListener("keypress", function(event) {
+			if(event.key === "Enter") {
+				searchCar();
 			}
-
-			// Reload table based on search term(s)
-			clearTable();
-			loadTable(queryString);
+		});
+		submitButton.addEventListener("click", function() {
+			searchCar();
 		});
 	}
 });
