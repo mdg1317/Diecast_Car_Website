@@ -36,7 +36,7 @@ function loadPage(data){
 }
 
 function populateMain(data){
-	var i,j;
+	var i,j,k;
 	var currentRow;
 	for(i = 0; i < data.length / 5; i++){
 		// Create new "div" element for a new row
@@ -44,7 +44,7 @@ function populateMain(data){
 		currentRow.setAttribute("id", "row" + i);
 		currentRow.setAttribute("class", "row");
 
-		// Create 5 columns in each row
+		// Populate row with 5 columns
 		for(j = i * 5; j < (i + 1) * 5; j++){
 			var newDiv = document.createElement("div");
 			var newLink = document.createElement("a");
@@ -55,11 +55,9 @@ function populateMain(data){
 			newLink.href = "individual_page.html?" + j;
 
 			newImg.setAttribute("id", "image" + j);
-			newImg.src = data[j].imageCar;
-			newImg.setAttribute("alt", "No image available");
+			//newImg.setAttribute("alt", "No image available");
 
 			newP.setAttribute("id", "result" + j);
-			newP.innerHTML = data[j].number + " - " + data[j].driver;
 
 			newLink.appendChild(newImg);
 			newLink.appendChild(newP);
@@ -70,7 +68,11 @@ function populateMain(data){
 		// Append row to index.html
 		document.body.appendChild(currentRow);
 	}
-
+	// Add table data into newly created rows
+	for(k = 0; k < data.length; k++){
+		document.getElementById("result" + k).innerHTML = data[k].number + " - " + data[k].driver;
+		document.getElementById("image" + k).src = data[k].imageCar;
+	}
 }
 
 function populateIndividual(data, carID){
