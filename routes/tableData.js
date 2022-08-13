@@ -1,20 +1,25 @@
-// Route used to get data from SQL database and store as JSON
-// Presumably exists since it can't be done in app.js?
+// Author: Matthew Groh
+// Last Updated: 8/12/2022
+//
+// tableData.js
+//
+// This route gets the table data from the database to be used
+// on the webpages
+
+// Necessary requires
 var express = require("express");
 var router = express.Router();
 var server = require("./dbms.js");
 
-//var tableJSON;
-
+// Request the table data
 router.post("/", function(req, res, next) {
 	console.log("Accessing table from SQL server");
 	server.dbquery("SELECT * FROM carInfo;", receiveData);
 
+	// Helper function to process the data from the query
 	function receiveData(err, results) {
 		console.log("Received table from SQL server");
 		console.log(results);
-		//tableJSON = JSON.stringify(results);
-		//res.send(tableJSON);
 		res.json(results);
 		console.log("Finished POST request");
 	}
