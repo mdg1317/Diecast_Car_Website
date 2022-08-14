@@ -43,15 +43,16 @@ function populateMain(data){
 	var i,j,k;
 	var currentRow;
 	var pageID;
+	var numCols = 10;
 	//console.log(data[0].id);
-	for(i = 0; i < data.length / 5; i++){
+	for(i = 0; i < data.length / numCols; i++){
 		// Create new "div" element for a new row
 		currentRow = document.createElement("div");
 		currentRow.setAttribute("id", "row" + i);
 		currentRow.setAttribute("class", "row");
 
 		// Populate row with 5 columns
-		for(j = i * 5; j < (i + 1) * 5; j++){
+		for(j = i * numCols; j < (i + 1) * numCols; j++){
 			if(j < data.length){
 				pageID = data[j].id;
 			} else {
