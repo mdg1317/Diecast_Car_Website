@@ -17,20 +17,27 @@
 
 .column img {
 	margin-top: 8px;
-  	vertical-align: middle;
-    display: block;
-    max-width: 100%;
-    height: auto;
+  vertical-align: middle;
+  display: block;
+  max-width: 100%;
+  height: auto;
 }
 
-.search {
+.searchRow {
+  display: flex;
   margin: auto;
   width: 100%;
   text-align: center;
 }
 
-.search input {
-  width: 50%;
+.searchRow::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.column input {
+  width: 90%;
 }
 
 /* Pagination links */

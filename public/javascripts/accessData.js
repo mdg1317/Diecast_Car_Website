@@ -118,22 +118,64 @@ function clearTable() {
 }
 
 function searchCar() {
-	var queryString;
-	var searchString = document.getElementById("searchBar").value;
+	var queryString = "SELECT * FROM carInfo ";
+	var searchDriver = document.getElementById("searchDriver").value;
+	var searchNumber = document.getElementById("searchNumber").value;
+	var searchSeries = document.getElementById("searchSeries").value;
+	var searchSponsor = document.getElementById("searchSponsor").value;
+	var searchManufacturer = document.getElementById("searchManufacturer").value;
+	var searchYear = document.getElementById("searchYear").value;
 
-	// If "Submit" is hit when search bar is empty, load all table entries
-	if(!searchString){
-		queryString = "SELECT * FROM carInfo";
-	} else {
-		// NOTE: THIS QUERY ONLY SUPPORTS ONE TYPE OF FIELD
-		// ADD MULTIPLE FIELDS FUNCTIONALITY LATER
-		queryString = 'SELECT * FROM carInfo WHERE \
-			driver LIKE "%' + searchString + '%" OR \
-			"' + searchString + '" IN (number) OR \
-			series LIKE "%' + searchString + '%" OR \
-			sponsor LIKE "%' + searchString + '%" OR \
-			"' + searchString + '" IN (manufacturer) OR \
-			"' + searchString + '" IN (year)';
+	// Create single SQL query based on inputted info
+	// FEEL LIKE THERE'S A BETTER WAY TO DO THIS
+	// MAYBE TRY TO IMPROVE LATER
+	if(searchDriver){
+		if(queryString.length <= 22){
+			queryString += " WHERE ";
+		} else {
+			queryString += " AND ";
+		}
+		queryString += 'driver LIKE "%' + searchDriver + '%" ';
+	}
+	if(searchNumber){
+		if(queryString.length <= 22){
+			queryString += " WHERE ";
+		} else {
+			queryString += " AND ";
+		}
+		queryString += '"' + searchNumber + '" IN (number) ';
+	}
+	if(searchSeries){
+		if(queryString.length <= 22){
+			queryString += " WHERE ";
+		} else {
+			queryString += " AND ";
+		}
+		queryString += ' series LIKE "%' + searchSeries + '%" ';
+	}
+	if(searchSponsor){
+		if(queryString.length <= 22){
+			queryString += " WHERE ";
+		} else {
+			queryString += " AND ";
+		}
+		queryString += 'sponsor LIKE "%' + searchSponsor + '%" ';
+	}
+	if(searchManufacturer){
+		if(queryString.length <= 22){
+			queryString += " WHERE ";
+		} else {
+			queryString += " AND ";
+		}
+		queryString += 'manufacturer LIKE "%' + searchManufacturer + '%" ';
+	}
+	if(searchYear){
+		if(queryString.length <= 22){
+			queryString += " WHERE ";
+		} else {
+			queryString += " AND ";
+		}
+		queryString += '"' + searchYear + '" IN (year) ';
 	}
 
 	// Reload table based on search term(s)
@@ -146,10 +188,10 @@ $(document).ready(function() {
 	loadTable("SELECT * FROM carInfo");
 
 	if(window.location.href.indexOf("individual_page") == -1) {
-		var searchField = document.getElementById("searchBar");
+		var searchBars = document.getElementById("searchBars");
 		var submitButton = document.getElementById("submitButton");
 
-		searchField.addEventListener("keypress", function(event) {
+		searchBars.addEventListener("keypress", function(event) {
 			if(event.key === "Enter") {
 				searchCar();
 			}
