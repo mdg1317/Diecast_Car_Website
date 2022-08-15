@@ -189,6 +189,7 @@ $(document).ready(function() {
 
 	if(window.location.href.indexOf("individual_page") == -1) {
 		var searchBars = document.getElementById("searchBars");
+		var clearButton = document.getElementById("clearButton");
 		var submitButton = document.getElementById("submitButton");
 
 		searchBars.addEventListener("keypress", function(event) {
@@ -198,6 +199,15 @@ $(document).ready(function() {
 		});
 		submitButton.addEventListener("click", function() {
 			searchCar();
+		});
+
+		clearButton.addEventListener("click", function() {
+			document.getElementById("searchDriver").value = "";
+			document.getElementById("searchNumber").value = "";
+			document.getElementById("searchSeries").value = "";
+			document.getElementById("searchSponsor").value = "";
+			document.getElementById("searchManufacturer").value = "";
+			document.getElementById("searchYear").value = "";
 		});
 	}
 });
