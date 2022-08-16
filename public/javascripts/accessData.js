@@ -41,6 +41,7 @@ function loadPage(data, pageNum){
 
 function populateMain(data, pageNum){
 	var currentRow, newDiv, newLink, newImg, newP;
+	var resultsCounter = document.getElementById("resultsCounter");
 	
 	// Number of rows and columns to display per page
 	var numRows = 10;
@@ -84,17 +85,22 @@ function populateMain(data, pageNum){
 		// Append row to index.html such that page selection always
 		// remains on bottom of page
 		if(i == 0){
-			var searchBars = document.getElementById("searchBars");
-			searchBars.insertAdjacentElement("afterend", currentRow);
+			resultsCounter.insertAdjacentElement("afterend", currentRow);
 		} else {
 			var prevRow = document.getElementById("row" + (i - 1))
 			prevRow.insertAdjacentElement("afterend", currentRow);
 		}
 	}
 
+	// Update text to display info about results on current page
+	var startingNum = Math.min(data.length, ((carsPerPage * parseInt(pageNum)) + 1));
+	var endingNum = Math.min(data.length, carsPerPage * (parseInt(pageNum) + 1));
+	resultsCounter.innerHTML = "Displaying " + startingNum + " - "
+		+ endingNum + " of " + data.length + " results";
+
+	// Add table data into newly created rows
 	var index = pageNum * carsPerPage;
 	var counter = 0;
-	// Add table data into newly created rows
 	for(var k = index; k < data.length; k++){
 		// Break loop if max number of cars on page is reached
 		if(counter == carsPerPage){
