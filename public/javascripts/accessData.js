@@ -6,7 +6,7 @@
 // This script loads the full table from the SQL database and displays it on
 // both the main and individual pages
 
-const loadTable = async (queryString) => {
+const loadTable = async (queryString, pageNum) => {
 	console.log("Attempting to access table...");
 	// Send a POST request invoking "/tableData" route found in app.js containing
 	// the proper SQL query depending on initial load/search term(s)
@@ -19,14 +19,14 @@ const loadTable = async (queryString) => {
 		success: function(data, ) {
 			console.log("Successfully accessed table");
 			console.log(data);
-			loadPage(data);
+			loadPage(data, pageNum);
 		}
 	}).fail(function(jqxhr, settings, ex) {
 		console.log("Could not access table");
 	});
 };
 
-function loadPage(data){
+function loadPage(data, pageNum){
 	// Call different population function depending on what page
 	// user is currently on
 	// NOT THE BEST WAY TO DO THIS
@@ -35,27 +35,31 @@ function loadPage(data){
 		var carID = location.search.substring(1);
 		populateIndividual(data, carID);
 	} else {
-		populateMain(data, 0);
+		populateMain(data, pageNum);
 	}
 }
 
 function populateMain(data, pageNum){
-	var i,j,k,m;
 	var currentRow, newDiv, newLink, newImg, newP;
 	
 	// Number of rows and columns to display per page
-	var numRows = 3;
-	var numCols = 5;
+	var numRows = 10;
+	var numCols = 10;
 	var carsPerPage = numRows * numCols;
 
-	for(i = 0; i < numRows; i++){
+	for(var i = 0; i < numRows; i++){
 		// Create new "div" element for a new row
 		currentRow = document.createElement("div");
 		currentRow.setAttribute("id", "row" + i);
 		currentRow.setAttribute("class", "row");
 
-		// Populate row with 5 columns
-		for(j = i * numCols; j < (i + 1) * numCols; j++){
+		// Calculate starting and ending indices based on 
+		// number of cars per page and current page
+		var startingID = i * numCols + (pageNum * carsPerPage);
+		var endingID = (i + 1) * numCols + (pageNum * carsPerPage);
+
+		// Populate row with correct number of columns
+		for(var j = startingID; j < endingID; j++){
 			newDiv = document.createElement("div");
 			newDiv.setAttribute("class", "column");
 
@@ -77,7 +81,7 @@ function populateMain(data, pageNum){
 			currentRow.appendChild(newDiv);
 		}
 
-		// Append row to index.html such that pagination always
+		// Append row to index.html such that page selection always
 		// remains on bottom of page
 		if(i == 0){
 			var searchBars = document.getElementById("searchBars");
@@ -88,24 +92,27 @@ function populateMain(data, pageNum){
 		}
 	}
 
+	var index = pageNum * carsPerPage;
+	var counter = 0;
 	// Add table data into newly created rows
-	for(k = 0; k < Math.min(data.length, carsPerPage); k++){
+	for(var k = index; k < data.length; k++){
+		// Break loop if max number of cars on page is reached
+		if(counter == carsPerPage){
+			break;
+		}
 		document.getElementById("result" + data[k].id).innerHTML = data[k].number + " - " + data[k].driver;
 		document.getElementById("image" + data[k].id).src = data[k].imageCar;
+		counter++;
 	}
 
-	// Create appropriate number of pagination links
-	// and append to bottom of page
-	newDiv = document.createElement("div");
-	newDiv.setAttribute("class", "pagination");
-	newDiv.setAttribute("id", "pages");
-	for(m = 0; m < data.length / carsPerPage; m++){
-		newLink = document.createElement("a");
-		newLink.href = "#" + m;
-		newLink.innerText = m + 1;
-		newDiv.appendChild(newLink);
+	// Hide unnecessary page select options
+	var pageSelect = document.getElementById("pageSelect");
+	for(var m = 19; m >= data.length / carsPerPage; m--){
+		pageSelect[m].hidden = true;
 	}
-	document.body.appendChild(newDiv);
+
+	// Correct the starting page select value
+	pageSelect.value = pageNum;
 }
 
 function populateIndividual(data, carID){
@@ -124,16 +131,18 @@ function populateIndividual(data, carID){
 }
 
 function clearPage() {
-	// Delete all previously created rows
 	// NOT GREAT
 	// IMPROVE LATER
-	var i;
-	var pages = document.getElementById("pages");
-	if(pages){
-		pages.remove();
+
+	// Unhide all page select options
+	var pageSelect = document.getElementById("pageSelect");
+	for(var i = 0; i < 20; i++){
+		pageSelect[i].hidden = false;
 	}
-	for(i = 200; i > -1; i--){
-		var thisRow = document.getElementById("row" + i);
+
+	// Delete all previous dynamic HTML
+	for(var j = 200; j > -1; j--){
+		var thisRow = document.getElementById("row" + j);
 		if(thisRow){
 			thisRow.remove();
 		}
@@ -141,7 +150,7 @@ function clearPage() {
 }
 
 function searchCar() {
-	var queryString = "SELECT * FROM carInfo ";
+	queryString = "SELECT * FROM carInfo ";
 	var searchDriver = document.getElementById("searchDriver").value;
 	var searchNumber = document.getElementById("searchNumber").value;
 	var searchSeries = document.getElementById("searchSeries").value;
@@ -203,19 +212,24 @@ function searchCar() {
 
 	// Reload table based on search term(s)
 	clearPage();
-	loadTable(queryString);
+	loadTable(queryString, 0);
 }
+
+// CHECK IF SQL INJECTION IS POSSIBLE DUE TO THIS
+var queryString = "SELECT * FROM carInfo ";
 
 $(document).ready(function() {
 	// Load all table entries when first loading page
-	loadTable("SELECT * FROM carInfo");
+	loadTable(queryString, 0);
 
 	if(window.location.href.indexOf("individual_page") == -1) {
 		var searchBars = document.getElementById("searchBars");
 		var clearButton = document.getElementById("clearButton");
 		var submitButton = document.getElementById("submitButton");
-		var page2 = document.getElementById("page2");
+		var pageSelect = document.getElementById("pageSelect");
 
+		// Perform search function if either "Submit" button is clicked
+		// or Enter key ius pressed in any box
 		searchBars.addEventListener("keypress", function(event) {
 			if(event.key === "Enter") {
 				searchCar();
@@ -225,6 +239,8 @@ $(document).ready(function() {
 			searchCar();
 		});
 
+
+		// Clear all search inputs
 		clearButton.addEventListener("click", function() {
 			document.getElementById("searchDriver").value = "";
 			document.getElementById("searchNumber").value = "";
@@ -232,6 +248,12 @@ $(document).ready(function() {
 			document.getElementById("searchSponsor").value = "";
 			document.getElementById("searchManufacturer").value = "";
 			document.getElementById("searchYear").value = "";
+		});
+
+		// Reload page for corresponding selection
+		pageSelect.addEventListener("change", function() {
+			clearPage();
+			loadTable(queryString, pageSelect.value);
 		});
 	}
 });
