@@ -41,7 +41,17 @@
 }
 
 .pagination {
+  display: flex;
   position:  relative;
-  bottom:  0;
-  /*overflow:  hidden;*/
+  margin: 50px auto;
+  bottom:  25px;
+  text-align: center;
+}
+
+.paginationLabel {
+  display: block;
+  position:  relative;
+  text-align: center;
+  top: 43px;
+  right: 45px;
 }
