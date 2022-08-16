@@ -42,7 +42,7 @@ exports.dbquery = function(query_str, callback) {
 
 		// Get the results from previous query
 		function(rows, results, callback) {
-			console.log("Dumping data...\n");
+			//console.log("Dumping data...\n");
 			results = rows;
 			callback(null, results);
 		}

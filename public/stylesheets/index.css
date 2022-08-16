@@ -40,6 +40,12 @@
   width: 90%;
 }
 
+.pagination {
+  position:  relative;
+  bottom:  0;
+  /*overflow:  hidden;*/
+}
+
 /* Pagination links */
 .pagination a {
   color: black;
@@ -47,6 +53,7 @@
   padding: 8px 16px;
   text-decoration: none;
   transition: background-color .3s;
+
 }
 
 /* Style the active/current link */

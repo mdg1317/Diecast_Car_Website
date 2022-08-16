@@ -23,7 +23,7 @@ router.post("/", jsonParser, function(req, res, next) {
 	// Helper function to process the data from the query
 	function receiveData(err, results) {
 		console.log("Received table from SQL server");
-		console.log(results);
+		//console.log(results);
 		res.json(results);
 		console.log("Finished POST request");
 	}
