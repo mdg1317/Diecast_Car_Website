@@ -1,5 +1,5 @@
 // Author: Matthew Groh
-// Last Updated: 8/12/2022
+// Last Updated: 8/16/2022
 //
 // tableData.js
 //
@@ -15,15 +15,13 @@ var server = require("./dbms.js");
 var jsonParser = bodyParser.json();
 
 // Request the table data
-router.post("/", jsonParser, function(req, res, next) {
+router.post("/", function(req, res, next) {
 	console.log("Accessing table from SQL server");
-	console.log(req.body.searchString);
-	server.dbquery(req.body.searchString, receiveData);
+	server.dbquery("SELECT * FROM carInfo", receiveData);
 
 	// Helper function to process the data from the query
 	function receiveData(err, results) {
 		console.log("Received table from SQL server");
-		//console.log(results);
 		res.json(results);
 		console.log("Finished POST request");
 	}
