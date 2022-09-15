@@ -102,7 +102,7 @@ function generateMain(tableData, pageNum){
 			break;
 		}
 		document.getElementById("result" + tableData[k].id).innerHTML = tableData[k].number + " - " + tableData[k].driver;
-		document.getElementById("image" + tableData[k].id).src = tableData[k].imageCar;
+		document.getElementById("image" + tableData[k].id).src = tableData[k].image0;
 		counter++;
 	}
 
