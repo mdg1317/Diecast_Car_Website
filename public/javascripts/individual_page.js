@@ -27,17 +27,13 @@ $(document).ready(function() {
 	// If a search was made, use that subset
 	// If not, use whole array
 	if(sessionStorage.getItem("searchData") != null){
-		console.log("searchData exists");
 		carArray = JSON.parse(sessionStorage.getItem("searchData"));
 	} else {
-		console.log("searchData does not exist");
 		carArray = JSON.parse(sessionStorage.getItem("tableData"));
 	}
 
 	// Get specific entry that matches id
 	var carData = carArray.find(o => o.id == location.search.substring(1));
-	console.log(carData);
-	console.log(carArray.indexOf(carData));
 	fillPage(carData);
 
 	var prevButton = document.getElementById("prevButton");

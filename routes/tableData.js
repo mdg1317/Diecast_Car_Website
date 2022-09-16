@@ -17,9 +17,9 @@ var jsonParser = bodyParser.json();
 // Request the table data
 router.post("/", function(req, res, next) {
 	console.log("Accessing table from SQL server");
-	server.dbquery("SELECT * FROM carInfo ORDER BY number + 0, \
+	server.dbquery("SELECT * FROM carInfo ORDER BY year, \
 		series='None', series='ARCA', series='Truck', series='Xfinity', series='Cup', \
-		year", receiveData);
+		SUBSTRING_INDEX(SUBSTRING_INDEX(driver, ' ', 2), ' ', -1)", receiveData);
 
 	// Helper function to process the data from the query
 	function receiveData(err, results) {
@@ -36,7 +36,7 @@ module.exports = router;
 	//series='None', series='ARCA', series='Truck', series='Xfinity', series='Cup', \
 	//year", receiveData);
 
-// Year -> Series -> Name
+// Year -> Series -> Last Name
 //server.dbquery("SELECT * FROM carInfo ORDER BY year, \
 	//series='None', series='ARCA', series='Truck', series='Xfinity', series='Cup', \
-	//driver", receiveData);
+	//SUBSTRING_INDEX(SUBSTRING_INDEX(driver, ' ', 2), ' ', -1)", receiveData);

@@ -8,25 +8,26 @@
 
 const getTableData = async () => {
 	var tableData = [];
+	var searchData = null;
 	// If data is already in sessionStorage, load it into tableData
 	// If not, perform SQL query and load that into tableData AND sessionStorage
 	// After either is done, call finishLoading() to continue
 	if(sessionStorage.getItem("tableData") != null){
-		console.log("Successfully accessed table using sessionStorage");
 		tableData = JSON.parse(sessionStorage.getItem("tableData"));
-		console.log(tableData);
-		finishLoading(tableData);
+		// Set searchData if it exists
+		if(sessionStorage.getItem("searchData") != null){
+			searchData = JSON.parse(sessionStorage.getItem("searchData"));
+		}
+		finishLoading(tableData, searchData);
 	} else {
 		// Send a POST request invoking "/tableData" route found in app.js
 		$.post({
 			traditional: true,
 			url: "/tableData",
 			success: function(data, ) {
-				console.log("Successfully accessed table using SQL");
 				sessionStorage.setItem("tableData", JSON.stringify(data));
 				tableData = JSON.parse(sessionStorage.getItem("tableData"));
-				console.log(tableData);
-				finishLoading(tableData);
+				finishLoading(tableData, searchData);
 			}
 		}).fail(function(jqxhr, settings, ex) {
 			console.log("Could not access table");
@@ -137,6 +138,12 @@ function clearPage() {
 
 function createSearchData(tableData) {
 	var searchData = [];
+	var pageSelect = document.getElementById("pageSelect");
+
+	// Delete previous search data if it exists
+	if(sessionStorage.getItem("searchData") != null){
+		sessionStorage.removeItem("searchData");
+	}
 
 	// Get all values from search fields
 	var searchDriver = document.getElementById("searchDriver").value.toLowerCase();
@@ -174,15 +181,26 @@ function createSearchData(tableData) {
 
 	// Add searchData to sessionStorage and regenerate page
 	sessionStorage.setItem("searchData", JSON.stringify(searchData));
-	console.log(searchData);
+	
+	sessionStorage.setItem("pageNum", 0);
+	pageSelect.value = 0;
+
 	clearPage();
-	generateMain(searchData, 0);
+	generateMain(searchData, sessionStorage.getItem("pageNum"));
 
 }
 
-function finishLoading(tableData) {
-	// Generate dynamic HTML
-	generateMain(tableData, 0);
+function finishLoading(tableData, searchData) {
+	// Generate dynamic HTML using searchData if it exists
+	// If not, use full table data
+	if(sessionStorage.getItem("pageNum") == null){
+		sessionStorage.setItem("pageNum", 0);
+	}
+	if(searchData != null){
+		generateMain(searchData, sessionStorage.getItem("pageNum"));
+	} else {
+		generateMain(tableData, sessionStorage.getItem("pageNum"));
+	}
 
 	var searchBars = document.getElementById("searchBars");
 	var clearButton = document.getElementById("clearButton");
@@ -215,22 +233,17 @@ function finishLoading(tableData) {
 	pageSelect.addEventListener("change", function() {
 		clearPage();
 
+		sessionStorage.setItem("pageNum", pageSelect.value);
 		// If user performed a search, reload the page corresponding to searchData
 		// If not, reload corresponding to the full table
 		if(sessionStorage.getItem("searchData") != null){
-			console.log("searchData exists");
-			generateMain(JSON.parse(sessionStorage.getItem("searchData")), pageSelect.value);
+			generateMain(JSON.parse(sessionStorage.getItem("searchData")), sessionStorage.getItem("pageNum"));
 		} else {
-			console.log("searchData does not exist");
-			generateMain(tableData, pageSelect.value);
+			generateMain(tableData, sessionStorage.getItem("pageNum"));
 		}
 	});
 }
+
 window.addEventListener("load", function() {
-	// Clear search data from sessionStorage if present
-	// Then get table data
-	if(sessionStorage.getItem("searchData") != null){
-		sessionStorage.removeItem("searchData");
-	}
 	getTableData();
 });
