@@ -15,14 +15,15 @@ function fillPage(data){
 	document.getElementById("sponsor").innerHTML = data.sponsor;
 	document.getElementById("manufacturer").innerHTML = data.manufacturer;
 	document.getElementById("year").innerHTML = data.year;
-	document.getElementById("image0").src = data.image0;
-	document.getElementById("image1").src = data.image1;
-	document.getElementById("imageCar").src = data.imageCar;
-	document.getElementById("imageDriver").src = data.imageDriver;
+	document.getElementById("image0").src = "images/" + data.image0;
+	document.getElementById("image1").src = "images/" + data.image1;
+	document.getElementById("imageCar").src = "images/" + data.imageCar;
+	document.getElementById("imageDriver").src = "images/" + data.imageDriver;
 }
 
 $(document).ready(function() {
-	var carData = JSON.parse(sessionStorage.getItem("tableData"))[location.search.substring(1)];
+	var carArray = JSON.parse(sessionStorage.getItem("tableData"));
+	var carData = carArray.find(o => o.id == location.search.substring(1));
 	console.log(carData);
 	fillPage(carData);
 });

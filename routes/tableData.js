@@ -17,7 +17,9 @@ var jsonParser = bodyParser.json();
 // Request the table data
 router.post("/", function(req, res, next) {
 	console.log("Accessing table from SQL server");
-	server.dbquery("SELECT * FROM carInfo", receiveData);
+	server.dbquery("SELECT * FROM carInfo ORDER BY year, \
+		series='None', series='ARCA', series='Truck', series='Xfinity', series='Cup', \
+		driver", receiveData);
 
 	// Helper function to process the data from the query
 	function receiveData(err, results) {
@@ -28,3 +30,13 @@ router.post("/", function(req, res, next) {
 });
 
 module.exports = router;
+
+// Number -> Series -> Year (Physical collection order)
+//server.dbquery("SELECT * FROM carInfo ORDER BY number + 0, \
+	//series='None', series='ARCA', series='Truck', series='Xfinity', series='Cup', \
+	//year", receiveData);
+
+// Year -> Series -> Name
+//server.dbquery("SELECT * FROM carInfo ORDER BY year, \
+	//series='None', series='ARCA', series='Truck', series='Xfinity', series='Cup', \
+	//driver", receiveData);
