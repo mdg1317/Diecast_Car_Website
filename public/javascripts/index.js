@@ -153,6 +153,13 @@ function createSearchData(tableData) {
 	var searchManufacturer = document.getElementById("searchManufacturer").value;
 	var searchYear = document.getElementById("searchYear").value;
 
+	sessionStorage.setItem("searchDriver", searchDriver);
+	sessionStorage.setItem("searchNumber", searchNumber);
+	sessionStorage.setItem("searchSeries", searchSeries);
+	sessionStorage.setItem("searchSponsor", searchSponsor);
+	sessionStorage.setItem("searchManufacturer", searchManufacturer);
+	sessionStorage.setItem("searchYear", searchYear);
+
 	// If all fields are empty, clear searchData and regenerate page
 	if(searchDriver.length == 0 && searchNumber.length == 0 &&
 		searchSeries.length == 0 && searchSponsor.length == 0 &&
@@ -202,6 +209,20 @@ function finishLoading(tableData, searchData) {
 		generateMain(tableData, sessionStorage.getItem("pageNum"));
 	}
 
+	var searchDriver = document.getElementById("searchDriver");
+	var searchNumber = document.getElementById("searchNumber");
+	var searchSeries = document.getElementById("searchSeries");
+	var searchSponsor = document.getElementById("searchSponsor");
+	var searchManufacturer = document.getElementById("searchManufacturer");
+	var searchYear = document.getElementById("searchYear");
+
+	searchDriver.value = sessionStorage.getItem("searchDriver");
+	searchNumber.value = sessionStorage.getItem("searchNumber");
+	searchSeries.value = sessionStorage.getItem("searchSeries");
+	searchSponsor.value = sessionStorage.getItem("searchSponsor");
+	searchManufacturer.value = sessionStorage.getItem("searchManufacturer");
+	searchYear.value = sessionStorage.getItem("searchYear");
+
 	var searchBars = document.getElementById("searchBars");
 	var clearButton = document.getElementById("clearButton");
 	var submitButton = document.getElementById("submitButton");
@@ -221,12 +242,19 @@ function finishLoading(tableData, searchData) {
 
 	// Clear all search inputs
 	clearButton.addEventListener("click", function() {
-		document.getElementById("searchDriver").value = "";
-		document.getElementById("searchNumber").value = "";
-		document.getElementById("searchSeries").value = "";
-		document.getElementById("searchSponsor").value = "";
-		document.getElementById("searchManufacturer").value = "";
-		document.getElementById("searchYear").value = "";
+		searchDriver.value = "";
+		searchNumber.value = "";
+		searchSeries.value = "";
+		searchSponsor.value = "";
+		searchManufacturer.value = "";
+		searchYear.value = "";
+
+		sessionStorage.setItem("searchDriver", "");
+		sessionStorage.setItem("searchNumber", "");
+		sessionStorage.setItem("searchSeries", "");
+		sessionStorage.setItem("searchSponsor", "");
+		sessionStorage.setItem("searchManufacturer", "");
+		sessionStorage.setItem("searchYear", "");
 	});
 
 	// Reload page for corresponding selection
