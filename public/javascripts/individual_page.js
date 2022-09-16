@@ -41,14 +41,18 @@ $(document).ready(function() {
 
 	// If at first or last entry, hide respective button
 	var currentIndex = carArray.indexOf(carData);
+	console.log(carArray.length);
+	console.log(currentIndex);
 	if(currentIndex + 1 >= carArray.length){
-		nextButton.setAttribute("hidden", true);
+		console.log("Hiding next button");
+		nextButton.style.visibility = "hidden";
 	} else {
 		nextButton.href = "individual_page.html?" + carArray[currentIndex + 1].id;
 	}
 
 	if(currentIndex - 1 < 0){
-		prevButton.setAttribute("hidden", true);
+		console.log("Hiding prev button");
+		prevButton.style.visibility = "hidden";
 	} else {
 		prevButton.href = "individual_page.html?" + carArray[currentIndex - 1].id;
 	}
