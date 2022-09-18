@@ -43,6 +43,7 @@ function generateMain(tableData, pageNum){
 	var numRows = 10;
 	var numCols = 10;
 	var carsPerPage = numRows * numCols;
+	var numCars = tableData.length;
 
 	for(var i = 0; i < numRows; i++){
 		// Create new "div" element for a new row
@@ -62,7 +63,7 @@ function generateMain(tableData, pageNum){
 
 			// Only add links, images, and text if end of
 			// data has not been reached
-			if(j < tableData.length){
+			if(j < numCars){
 				newLink = document.createElement("a");
 				newImg = document.createElement("img");
 				newP = document.createElement("p");
@@ -89,15 +90,15 @@ function generateMain(tableData, pageNum){
 	}
 
 	// Update text to display info about results on current page
-	var startingNum = Math.min(tableData.length, ((carsPerPage * parseInt(pageNum)) + 1));
-	var endingNum = Math.min(tableData.length, carsPerPage * (parseInt(pageNum) + 1));
+	var startingNum = Math.min(numCars, ((carsPerPage * parseInt(pageNum)) + 1));
+	var endingNum = Math.min(numCars, carsPerPage * (parseInt(pageNum) + 1));
 	resultsCounter.innerHTML = "Displaying " + startingNum + " - "
-		+ endingNum + " of " + tableData.length + " results";
+		+ endingNum + " of " + numCars + " results";
 
 	// Add table data into newly created rows
 	var index = pageNum * carsPerPage;
 	var counter = 0;
-	for(var k = index; k < tableData.length; k++){
+	for(var k = index; k < numCars; k++){
 		// Break loop if max number of cars on page is reached
 		if(counter == carsPerPage){
 			break;
@@ -107,13 +108,17 @@ function generateMain(tableData, pageNum){
 		counter++;
 	}
 
-	// Hide unnecessary page select options
+	// Add appropriate number of page select options
 	var pageSelect = document.getElementById("pageSelect");
-	for(var m = 19; m >= tableData.length / carsPerPage; m--){
-		pageSelect[m].hidden = true;
+	for(var m = 2; m < Math.ceil(numCars / carsPerPage) + 1; m++){
+		//console.log("m: " + m);
+		//console.log(m - 1);
+		pageSelect.options.add(new Option(m, m - 1));
+		//console.log(pageSelect.options[pageSelect.options.length].value);
 	}
 
 	// Correct the starting page select value
+	//console.log(pageNum);
 	pageSelect.value = pageNum;
 }
 
@@ -121,10 +126,10 @@ function clearPage() {
 	// NOT GREAT
 	// IMPROVE LATER
 
-	// Unhide all page select options
+	// Delete all page select options
 	var pageSelect = document.getElementById("pageSelect");
-	for(var i = 0; i < 20; i++){
-		pageSelect[i].hidden = false;
+	for(var i = pageSelect.options.length - 1; i > 0; i--){
+		pageSelect.remove(i);
 	}
 
 	// Delete all previous dynamic HTML
@@ -173,6 +178,8 @@ function createSearchData(tableData) {
 		return;
 	}
 
+	console.log(searchNumber);
+
 	// If any entries in tableData match ALL inputs, add it to searchData
 	for(var i = 0; i < tableData.length; i++){
 		var currentDriver = tableData[i].driver.toLowerCase();
@@ -183,10 +190,9 @@ function createSearchData(tableData) {
 		var currentManufacturer = tableData[i].manufacturer.toLowerCase();
 		var currentYear = tableData[i].year;
 
-		if(currentDriver.includes(searchDriver) && currentNumber == searchNumber
-			&& currentSeries.includes(searchSeries) && currentSponsor.includes(searchSponsor)
-			&& currentTeam.includes(searchTeam) && currentManufacturer.includes(searchManufacturer)
-			&& currentYear.includes(searchYear)){
+		if(currentDriver.includes(searchDriver) && currentNumber.includes(searchNumber) && currentSeries.includes(searchSeries)
+			&& currentSponsor.includes(searchSponsor) && currentTeam.includes(searchTeam)
+			&& currentManufacturer.includes(searchManufacturer) && currentYear.includes(searchYear)){
 			searchData.push(tableData[i]);
 		}
 	}
@@ -268,9 +274,10 @@ function finishLoading(tableData, searchData) {
 
 	// Reload page for corresponding selection
 	pageSelect.addEventListener("change", function() {
-		clearPage();
-
 		sessionStorage.setItem("pageNum", pageSelect.value);
+		clearPage();
+		
+		//console.log(sessionStorage.getItem("pageNum"));
 		// If user performed a search, reload the page corresponding to searchData
 		// If not, reload corresponding to the full table
 		if(sessionStorage.getItem("searchData") != null){
