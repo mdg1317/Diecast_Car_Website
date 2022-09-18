@@ -150,6 +150,7 @@ function createSearchData(tableData) {
 	var searchNumber = document.getElementById("searchNumber").value;
 	var searchSeries = document.getElementById("searchSeries").value;
 	var searchSponsor = document.getElementById("searchSponsor").value;
+	var searchTeam = document.getElementById("searchTeam").value;
 	var searchManufacturer = document.getElementById("searchManufacturer").value;
 	var searchYear = document.getElementById("searchYear").value;
 
@@ -157,13 +158,15 @@ function createSearchData(tableData) {
 	sessionStorage.setItem("searchNumber", searchNumber);
 	sessionStorage.setItem("searchSeries", searchSeries);
 	sessionStorage.setItem("searchSponsor", searchSponsor);
+	sessionStorage.setItem("searchTeam", searchTeam);
 	sessionStorage.setItem("searchManufacturer", searchManufacturer);
 	sessionStorage.setItem("searchYear", searchYear);
 
 	// If all fields are empty, clear searchData and regenerate page
 	if(searchDriver.length == 0 && searchNumber.length == 0 &&
 		searchSeries.length == 0 && searchSponsor.length == 0 &&
-		searchManufacturer.length == 0 && searchYear.length == 0){
+		searchTeam.length == 0 && searchManufacturer.length == 0 &&
+		searchYear.length == 0){
 		sessionStorage.removeItem("searchData");
 		clearPage();
 		generateMain(tableData, 0);
@@ -176,12 +179,14 @@ function createSearchData(tableData) {
 		var currentNumber = tableData[i].number;
 		var currentSeries = tableData[i].series.toLowerCase();
 		var currentSponsor = tableData[i].sponsor.toLowerCase();
+		var currentTeam = tableData[i].team.toLowerCase();
 		var currentManufacturer = tableData[i].manufacturer.toLowerCase();
 		var currentYear = tableData[i].year;
 
-		if(currentDriver.includes(searchDriver) && currentNumber.includes(searchNumber)
+		if(currentDriver.includes(searchDriver) && currentNumber == searchNumber
 			&& currentSeries.includes(searchSeries) && currentSponsor.includes(searchSponsor)
-			&& currentManufacturer.includes(searchManufacturer) && currentYear.includes(searchYear)){
+			&& currentTeam.includes(searchTeam) && currentManufacturer.includes(searchManufacturer)
+			&& currentYear.includes(searchYear)){
 			searchData.push(tableData[i]);
 		}
 	}
@@ -213,6 +218,7 @@ function finishLoading(tableData, searchData) {
 	var searchNumber = document.getElementById("searchNumber");
 	var searchSeries = document.getElementById("searchSeries");
 	var searchSponsor = document.getElementById("searchSponsor");
+	var searchTeam = document.getElementById("searchTeam");
 	var searchManufacturer = document.getElementById("searchManufacturer");
 	var searchYear = document.getElementById("searchYear");
 
@@ -220,6 +226,7 @@ function finishLoading(tableData, searchData) {
 	searchNumber.value = sessionStorage.getItem("searchNumber");
 	searchSeries.value = sessionStorage.getItem("searchSeries");
 	searchSponsor.value = sessionStorage.getItem("searchSponsor");
+	searchTeam.value = sessionStorage.getItem("searchTeam");
 	searchManufacturer.value = sessionStorage.getItem("searchManufacturer");
 	searchYear.value = sessionStorage.getItem("searchYear");
 
@@ -246,6 +253,7 @@ function finishLoading(tableData, searchData) {
 		searchNumber.value = "";
 		searchSeries.value = "";
 		searchSponsor.value = "";
+		searchTeam.value = "";
 		searchManufacturer.value = "";
 		searchYear.value = "";
 
@@ -253,6 +261,7 @@ function finishLoading(tableData, searchData) {
 		sessionStorage.setItem("searchNumber", "");
 		sessionStorage.setItem("searchSeries", "");
 		sessionStorage.setItem("searchSponsor", "");
+		sessionStorage.setItem("searchTeam", "");
 		sessionStorage.setItem("searchManufacturer", "");
 		sessionStorage.setItem("searchYear", "");
 	});

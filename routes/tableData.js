@@ -19,7 +19,7 @@ router.post("/", function(req, res, next) {
 	console.log("Accessing table from SQL server");
 	server.dbquery("SELECT * FROM carInfo ORDER BY year, \
 		series='None', series='ARCA', series='Truck', series='Xfinity', series='Cup', \
-		SUBSTRING_INDEX(SUBSTRING_INDEX(driver, ' ', 2), ' ', -1)", receiveData);
+		SUBSTRING_INDEX(SUBSTRING_INDEX(driver, ' ', 2), ' ', -1), id", receiveData);
 
 	// Helper function to process the data from the query
 	function receiveData(err, results) {
