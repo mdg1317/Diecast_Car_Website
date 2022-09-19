@@ -16,10 +16,26 @@ function fillPage(data){
 	document.getElementById("team").innerHTML = data.team;
 	document.getElementById("manufacturer").innerHTML = data.manufacturer;
 	document.getElementById("year").innerHTML = data.year;
+
 	document.getElementById("image0").src = "images/" + data.image0;
+	if(data.image0 != "NoImageAvailable.jpg"){
+		document.getElementById("image0Link").href = "images/" + data.image0;
+	}
+
 	document.getElementById("image1").src = "images/" + data.image1;
+	if(data.image1 != "NoImageAvailable.jpg"){
+		document.getElementById("image1Link").href = "images/" + data.image1;
+	}
+
 	document.getElementById("imageCar").src = "images/" + data.imageCar;
+	if(data.imageCar != "NoImageAvailable.jpg"){
+		document.getElementById("imageCarLink").href = "images/" + data.imageCar;
+	}
+
 	document.getElementById("imageDriver").src = "images/" + data.imageDriver;
+	if(data.imageDriver != "NoImageAvailable.jpg"){
+		document.getElementById("imageDriverLink").href = "images/" + data.imageDriver;
+	}
 }
 
 $(document).ready(function() {
@@ -42,17 +58,13 @@ $(document).ready(function() {
 
 	// If at first or last entry, hide respective button
 	var currentIndex = carArray.indexOf(carData);
-	console.log(carArray.length);
-	console.log(currentIndex);
 	if(currentIndex + 1 >= carArray.length){
-		console.log("Hiding next button");
 		nextButton.style.visibility = "hidden";
 	} else {
 		nextButton.href = "individual_page.html?" + carArray[currentIndex + 1].id;
 	}
 
 	if(currentIndex - 1 < 0){
-		console.log("Hiding prev button");
 		prevButton.style.visibility = "hidden";
 	} else {
 		prevButton.href = "individual_page.html?" + carArray[currentIndex - 1].id;

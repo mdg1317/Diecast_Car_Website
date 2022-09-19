@@ -127,18 +127,19 @@ function clearPage() {
 	// IMPROVE LATER
 
 	// Delete all page select options
-	var pageSelect = document.getElementById("pageSelect");
+	/*var pageSelect = document.getElementById("pageSelect");
 	for(var i = pageSelect.options.length - 1; i > 0; i--){
 		pageSelect.remove(i);
 	}
 
 	// Delete all previous dynamic HTML
-	for(var j = 200; j > -1; j--){
+	for(var j = 9; j > -1; j--){
 		var thisRow = document.getElementById("row" + j);
 		if(thisRow){
 			thisRow.remove();
 		}
-	}
+	}*/
+	location.reload();
 }
 
 function createSearchData(tableData) {
@@ -151,29 +152,31 @@ function createSearchData(tableData) {
 	}
 
 	// Get all values from search fields
-	var searchDriver = document.getElementById("searchDriver").value.toLowerCase();
-	var searchNumber = document.getElementById("searchNumber").value;
-	var searchSeries = document.getElementById("searchSeries").value;
-	var searchSponsor = document.getElementById("searchSponsor").value;
-	var searchTeam = document.getElementById("searchTeam").value;
-	var searchManufacturer = document.getElementById("searchManufacturer").value;
-	var searchYear = document.getElementById("searchYear").value;
+	var driverValue = searchDriver.value.toLowerCase();
+	var numberValue = searchNumber.value;
+	var seriesValue = searchSeries.value;
+	var sponsorValue = searchSponsor.value;
+	var teamValue = searchTeam.value;
+	var manufacturerValue = searchManufacturer.value;
+	var yearValue = searchYear.value;
 
-	sessionStorage.setItem("searchDriver", searchDriver);
-	sessionStorage.setItem("searchNumber", searchNumber);
-	sessionStorage.setItem("searchSeries", searchSeries);
-	sessionStorage.setItem("searchSponsor", searchSponsor);
-	sessionStorage.setItem("searchTeam", searchTeam);
-	sessionStorage.setItem("searchManufacturer", searchManufacturer);
-	sessionStorage.setItem("searchYear", searchYear);
+	// Store search values in sessionStorage so they will
+	// persist when reloading pages without changing search terms
+	sessionStorage.setItem("searchDriver", driverValue);
+	sessionStorage.setItem("searchNumber", numberValue);
+	sessionStorage.setItem("searchSeries", seriesValue);
+	sessionStorage.setItem("searchSponsor", sponsorValue);
+	sessionStorage.setItem("searchTeam", teamValue);
+	sessionStorage.setItem("searchManufacturer", manufacturerValue);
+	sessionStorage.setItem("searchYear", yearValue);
 
 	// If all fields are empty, clear searchData and regenerate page
-	if(searchDriver.length == 0 && searchNumber.length == 0 &&
-		searchSeries.length == 0 && searchSponsor.length == 0 &&
-		searchTeam.length == 0 && searchManufacturer.length == 0 &&
-		searchYear.length == 0){
+	if(driverValue.length == 0 && numberValue.length == 0 &&
+		seriesValue.length == 0 && sponsorValue.length == 0 &&
+		teamValue.length == 0 && manufacturerValue.length == 0 &&
+		yearValue.length == 0){
 		sessionStorage.removeItem("searchData");
-		clearPage();
+		location.reload();
 		generateMain(tableData, 0);
 		return;
 	}
@@ -190,9 +193,10 @@ function createSearchData(tableData) {
 		var currentManufacturer = tableData[i].manufacturer.toLowerCase();
 		var currentYear = tableData[i].year;
 
-		if(currentDriver.includes(searchDriver) && currentNumber.includes(searchNumber) && currentSeries.includes(searchSeries)
-			&& currentSponsor.includes(searchSponsor) && currentTeam.includes(searchTeam)
-			&& currentManufacturer.includes(searchManufacturer) && currentYear.includes(searchYear)){
+		if(currentDriver.includes(driverValue) && currentNumber.includes(numberValue)
+			&& currentSeries.includes(seriesValue) && currentSponsor.includes(sponsorValue)
+			&& currentTeam.includes(teamValue) && currentManufacturer.includes(manufacturerValue)
+			&& currentYear.includes(yearValue)){
 			searchData.push(tableData[i]);
 		}
 	}
@@ -203,7 +207,7 @@ function createSearchData(tableData) {
 	sessionStorage.setItem("pageNum", 0);
 	pageSelect.value = 0;
 
-	clearPage();
+	location.reload();
 	generateMain(searchData, sessionStorage.getItem("pageNum"));
 
 }
@@ -220,14 +224,7 @@ function finishLoading(tableData, searchData) {
 		generateMain(tableData, sessionStorage.getItem("pageNum"));
 	}
 
-	var searchDriver = document.getElementById("searchDriver");
-	var searchNumber = document.getElementById("searchNumber");
-	var searchSeries = document.getElementById("searchSeries");
-	var searchSponsor = document.getElementById("searchSponsor");
-	var searchTeam = document.getElementById("searchTeam");
-	var searchManufacturer = document.getElementById("searchManufacturer");
-	var searchYear = document.getElementById("searchYear");
-
+	// Set search field values to those found in sessionStorage
 	searchDriver.value = sessionStorage.getItem("searchDriver");
 	searchNumber.value = sessionStorage.getItem("searchNumber");
 	searchSeries.value = sessionStorage.getItem("searchSeries");
@@ -253,7 +250,7 @@ function finishLoading(tableData, searchData) {
 	});
 
 
-	// Clear all search inputs
+	// Clear all search inputs from both the page and sessionStorage
 	clearButton.addEventListener("click", function() {
 		searchDriver.value = "";
 		searchNumber.value = "";
@@ -275,7 +272,7 @@ function finishLoading(tableData, searchData) {
 	// Reload page for corresponding selection
 	pageSelect.addEventListener("change", function() {
 		sessionStorage.setItem("pageNum", pageSelect.value);
-		clearPage();
+		location.reload();
 		
 		//console.log(sessionStorage.getItem("pageNum"));
 		// If user performed a search, reload the page corresponding to searchData
@@ -288,6 +285,16 @@ function finishLoading(tableData, searchData) {
 	});
 }
 
+// Search fields used for various functions
+var searchDriver = document.getElementById("searchDriver");
+var searchNumber = document.getElementById("searchNumber");
+var searchSeries = document.getElementById("searchSeries");
+var searchSponsor = document.getElementById("searchSponsor");
+var searchTeam = document.getElementById("searchTeam");
+var searchManufacturer = document.getElementById("searchManufacturer");
+var searchYear = document.getElementById("searchYear");
+
 window.addEventListener("load", function() {
+	window.scrollTo(0, 0);
 	getTableData();
 });

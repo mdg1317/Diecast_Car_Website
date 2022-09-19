@@ -3,7 +3,7 @@
 }
 
 .column {
-  flex: 33.33%;
+  flex: 25%;
   padding: 5px;
   text-align: left;
 }
@@ -37,8 +37,12 @@
   	vertical-align: middle;
     display: block;
     object-fit:  cover;
-    max-width: 70%;
+    max-width: 100%;
     height: auto
+}
+
+.imageLink {
+  display: inline-block;
 }
 
 .headerColumn a {
