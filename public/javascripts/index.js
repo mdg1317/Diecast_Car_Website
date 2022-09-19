@@ -39,6 +39,8 @@ function generateMain(tableData, pageNum){
 	var currentRow, newDiv, newLink, newImg, newP;
 	var resultsCounter = document.getElementById("resultsCounter");
 
+	console.log(sessionStorage.getItem("selectDriver"));
+
 	// Number of rows and columns to display per page
 	var numRows = 10;
 	var numCols = 10;
@@ -120,6 +122,8 @@ function generateMain(tableData, pageNum){
 	// Correct the starting page select value
 	//console.log(pageNum);
 	pageSelect.value = pageNum;
+
+	buildSelects(tableData);
 }
 
 function clearPage() {
@@ -132,6 +136,15 @@ function clearPage() {
 		pageSelect.remove(i);
 	}
 
+	console.log(sessionStorage.getItem(selectDriver));
+	removeSelectTerms(selectDriver);
+	removeSelectTerms(selectNumber);
+	removeSelectTerms(selectSeries);
+	removeSelectTerms(selectSponsor);
+	removeSelectTerms(selectTeam);
+	removeSelectTerms(selectManufacturer);
+	removeSelectTerms(selectYear);
+
 	// Delete all previous dynamic HTML
 	for(var j = 200; j > -1; j--){
 		var thisRow = document.getElementById("row" + j);
@@ -141,7 +154,14 @@ function clearPage() {
 	}
 }
 
+function removeSelectTerms(element){
+	for(var i = element.options.length - 1; i > 0; i--){
+		element.remove(i);
+	}
+}
+
 function createSearchData(tableData) {
+	//console.log(tableData);
 	var searchData = [];
 	var pageSelect = document.getElementById("pageSelect");
 
@@ -151,54 +171,54 @@ function createSearchData(tableData) {
 	}
 
 	// Get all values from search fields
-	var searchDriver = document.getElementById("searchDriver").value.toLowerCase();
-	var searchNumber = document.getElementById("searchNumber").value;
-	var searchSeries = document.getElementById("searchSeries").value;
-	var searchSponsor = document.getElementById("searchSponsor").value;
-	var searchTeam = document.getElementById("searchTeam").value;
-	var searchManufacturer = document.getElementById("searchManufacturer").value;
-	var searchYear = document.getElementById("searchYear").value;
+	var driverValue = selectDriver.value;
+	var numberValue = selectNumber.value;
+	var seriesValue = selectSeries.value;
+	var sponsorValue = selectSponsor.value;
+	var teamValue = selectTeam.value;
+	var manufacturerValue = selectManufacturer.value;
+	var yearValue = selectYear.value;
 
-	sessionStorage.setItem("searchDriver", searchDriver);
-	sessionStorage.setItem("searchNumber", searchNumber);
-	sessionStorage.setItem("searchSeries", searchSeries);
-	sessionStorage.setItem("searchSponsor", searchSponsor);
-	sessionStorage.setItem("searchTeam", searchTeam);
-	sessionStorage.setItem("searchManufacturer", searchManufacturer);
-	sessionStorage.setItem("searchYear", searchYear);
+	sessionStorage.setItem("selectDriver", driverValue);
+	sessionStorage.setItem("selectNumber", numberValue);
+	sessionStorage.setItem("selectSeries", seriesValue);
+	sessionStorage.setItem("selectSponsor", sponsorValue);
+	sessionStorage.setItem("selectTeam", teamValue);
+	sessionStorage.setItem("selectManufacturer", manufacturerValue);
+	sessionStorage.setItem("selectYear", yearValue);
 
 	// If all fields are empty, clear searchData and regenerate page
-	if(searchDriver.length == 0 && searchNumber.length == 0 &&
-		searchSeries.length == 0 && searchSponsor.length == 0 &&
-		searchTeam.length == 0 && searchManufacturer.length == 0 &&
-		searchYear.length == 0){
+	/*if(selectDriver.length == 0 && selectNumber.length == 0 &&
+		selectSeries.length == 0 && selectSponsor.length == 0 &&
+		selectTeam.length == 0 && selectManufacturer.length == 0 &&
+		selectYear.length == 0){
 		sessionStorage.removeItem("searchData");
 		clearPage();
 		generateMain(tableData, 0);
 		return;
-	}
-
-	console.log(searchNumber);
+	}*/
 
 	// If any entries in tableData match ALL inputs, add it to searchData
 	for(var i = 0; i < tableData.length; i++){
-		var currentDriver = tableData[i].driver.toLowerCase();
+		var currentDriver = tableData[i].driver;
 		var currentNumber = tableData[i].number;
-		var currentSeries = tableData[i].series.toLowerCase();
-		var currentSponsor = tableData[i].sponsor.toLowerCase();
-		var currentTeam = tableData[i].team.toLowerCase();
-		var currentManufacturer = tableData[i].manufacturer.toLowerCase();
+		var currentSeries = tableData[i].series;
+		var currentSponsor = tableData[i].sponsor;
+		var currentTeam = tableData[i].team;
+		var currentManufacturer = tableData[i].manufacturer;
 		var currentYear = tableData[i].year;
 
-		if(currentDriver.includes(searchDriver) && currentNumber.includes(searchNumber) && currentSeries.includes(searchSeries)
-			&& currentSponsor.includes(searchSponsor) && currentTeam.includes(searchTeam)
-			&& currentManufacturer.includes(searchManufacturer) && currentYear.includes(searchYear)){
+		if(currentDriver.includes(driverValue) && currentNumber.includes(numberValue)
+			&& currentSeries.includes(seriesValue) && currentSponsor.includes(sponsorValue)
+			&& currentTeam.includes(teamValue) && currentManufacturer.includes(manufacturerValue)
+			&& currentYear.includes(yearValue)){
 			searchData.push(tableData[i]);
 		}
 	}
 
 	// Add searchData to sessionStorage and regenerate page
 	sessionStorage.setItem("searchData", JSON.stringify(searchData));
+	console.log(searchData);
 	
 	sessionStorage.setItem("pageNum", 0);
 	pageSelect.value = 0;
@@ -206,6 +226,57 @@ function createSearchData(tableData) {
 	clearPage();
 	generateMain(searchData, sessionStorage.getItem("pageNum"));
 
+}
+
+function buildSelects(tableData) {
+	console.log(tableData);
+
+	var listDrivers = [];
+	var listNumbers = [];
+	var listSeries = [];
+	var listSponsors = [];
+	var listTeams = [];
+	var listManufacturers = [];
+	var listYears = [];
+
+	var index = 0;
+	for(var i = 0; i < tableData.length; i++){
+		addToList(listDrivers, tableData[i].driver);
+		addToList(listNumbers, tableData[i].number);
+		addToList(listSeries, tableData[i].series);
+		addToList(listSponsors, tableData[i].sponsor);
+		addToList(listTeams, tableData[i].team);
+		addToList(listManufacturers, tableData[i].manufacturer);
+		addToList(listYears, tableData[i].year);
+	}
+
+	addToSelect(selectDriver, listDrivers);
+	addToSelect(selectNumber, listNumbers);
+	addToSelect(selectSeries, listSeries);
+	addToSelect(selectSponsor, listSponsors);
+	addToSelect(selectTeam, listTeams);
+	addToSelect(selectManufacturer, listManufacturers);
+	addToSelect(selectYear, listYears);
+
+}
+
+function addToList(arr, value){
+	if(!arr.find(e => e.key === value)){
+		arr.push({key: value, num: 1});
+	} else {
+		var index = arr.findIndex(o => {return o.key === value;});
+		arr[index].num += 1;
+	}
+}
+
+function addToSelect(element, arr){
+	for(var i = 0; i < arr.length; i++){
+		element.options.add(new Option(arr[i].key + " (" + arr[i].num + ")", arr[i].key));
+		if(element.options[i].value === sessionStorage.getItem(element)){
+			element.options[i].selected = true;
+		}
+	}
+	//arr.options[arr.options.indexOf(sessionStorage.getItem(element))].selected = true;
 }
 
 function finishLoading(tableData, searchData) {
@@ -220,56 +291,126 @@ function finishLoading(tableData, searchData) {
 		generateMain(tableData, sessionStorage.getItem("pageNum"));
 	}
 
-	var searchDriver = document.getElementById("searchDriver");
-	var searchNumber = document.getElementById("searchNumber");
-	var searchSeries = document.getElementById("searchSeries");
-	var searchSponsor = document.getElementById("searchSponsor");
-	var searchTeam = document.getElementById("searchTeam");
-	var searchManufacturer = document.getElementById("searchManufacturer");
-	var searchYear = document.getElementById("searchYear");
+	//console.log(sessionStorage.getItem("selectDriver"));
+	if(sessionStorage.getItem("selectDriver") != null){
+		//console.log(sessionStorage.getItem("selectDriver"));
+		//console.log("selectDriver found");
+		selectDriver.options[selectDriver.options.selectedIndex].selected = true;
+	} else {
+		console.log("selectDriver not found");
+		selectDriver.value = "";
+	}
 
-	searchDriver.value = sessionStorage.getItem("searchDriver");
-	searchNumber.value = sessionStorage.getItem("searchNumber");
-	searchSeries.value = sessionStorage.getItem("searchSeries");
-	searchSponsor.value = sessionStorage.getItem("searchSponsor");
-	searchTeam.value = sessionStorage.getItem("searchTeam");
-	searchManufacturer.value = sessionStorage.getItem("searchManufacturer");
-	searchYear.value = sessionStorage.getItem("searchYear");
+	if(sessionStorage.getItem("selectNumber") != null){
+		selectNumber.value = sessionStorage.getItem("selectNumber");
+	} else {
+		selectNumber.value = "";
+	}
+	
+	/*selectSeries.value = sessionStorage.getItem("selectSeries");
+	selectSponsor.value = sessionStorage.getItem("selectSponsor");
+	selectTeam.value = sessionStorage.getItem("selectTeam");
+	selectManufacturer.value = sessionStorage.getItem("selectManufacturer");
+	selectYear.value = sessionStorage.getItem("selectYear");*/
 
-	var searchBars = document.getElementById("searchBars");
+	//var searchBars = document.getElementById("searchBars");
 	var clearButton = document.getElementById("clearButton");
 	var submitButton = document.getElementById("submitButton");
 	var pageSelect = document.getElementById("pageSelect");
 
 	// Perform search function if either "Submit" button is clicked
 	// or Enter key ius pressed in any box
-	searchBars.addEventListener("keypress", function(event) {
-		if(event.key === "Enter") {
+	//searchBars.addEventListener("keypress", function(event) {
+		//if(event.key === "Enter") {
+			//createSearchData(tableData);
+		//}
+	//});
+	submitButton.addEventListener("click", function() {
+		/*selectDriver.value = sessionStorage.getItem("selectDriver");
+		selectNumber.value = sessionStorage.getItem("selectNumber");
+		selectSeries.value = sessionStorage.getItem("selectSeries");
+		selectSponsor.value = sessionStorage.getItem("selectSponsor");
+		selectTeam.value = sessionStorage.getItem("selectTeam");
+		selectManufacturer.value = sessionStorage.getItem("selectManufacturer");
+		selectYear.value = sessionStorage.getItem("selectYear");*/
+		createSearchData(tableData);
+	});
+
+	/*selectDriver.addEventListener("change", function() {
+		console.log(selectDriver.value);
+		//if(searchData != null){
+			//createSearchData(searchData);
+		//} else {
+			createSearchData(tableData);
+		//}
+	});
+
+	selectNumber.addEventListener("change", function() {
+		//if(searchData != null){
+			//createSearchData(searchData);
+		//} else {
+			createSearchData(tableData);
+		//}
+	});
+
+	selectSeries.addEventListener("change", function() {
+		if(searchData != null){
+			createSearchData(searchData);
+		} else {
 			createSearchData(tableData);
 		}
 	});
-	submitButton.addEventListener("click", function() {
-		createSearchData(tableData);
+
+	selectSponsor.addEventListener("change", function() {
+		if(searchData != null){
+			createSearchData(searchData);
+		} else {
+			createSearchData(tableData);
+		}
 	});
+
+	selectTeam.addEventListener("change", function() {
+		if(searchData != null){
+			createSearchData(searchData);
+		} else {
+			createSearchData(tableData);
+		}
+	});
+
+	selectManufacturer.addEventListener("change", function() {
+		if(searchData != null){
+			createSearchData(searchData);
+		} else {
+			createSearchData(tableData);
+		}
+	});
+
+	selectYear.addEventListener("change", function() {
+		if(searchData != null){
+			createSearchData(searchData);
+		} else {
+			createSearchData(tableData);
+		}
+	});*/
 
 
 	// Clear all search inputs
 	clearButton.addEventListener("click", function() {
-		searchDriver.value = "";
-		searchNumber.value = "";
-		searchSeries.value = "";
-		searchSponsor.value = "";
-		searchTeam.value = "";
-		searchManufacturer.value = "";
-		searchYear.value = "";
+		selectDriver.value = "";
+		selectNumber.value = "";
+		selectSeries.value = "";
+		selectSponsor.value = "";
+		selectTeam.value = "";
+		selectManufacturer.value = "";
+		selectYear.value = "";
 
-		sessionStorage.setItem("searchDriver", "");
-		sessionStorage.setItem("searchNumber", "");
-		sessionStorage.setItem("searchSeries", "");
-		sessionStorage.setItem("searchSponsor", "");
-		sessionStorage.setItem("searchTeam", "");
-		sessionStorage.setItem("searchManufacturer", "");
-		sessionStorage.setItem("searchYear", "");
+		sessionStorage.setItem("selectDriver", "");
+		sessionStorage.setItem("selectNumber", "");
+		sessionStorage.setItem("selectSeries", "");
+		sessionStorage.setItem("selectSponsor", "");
+		sessionStorage.setItem("selectTeam", "");
+		sessionStorage.setItem("selectManufacturer", "");
+		sessionStorage.setItem("selectYear", "");
 	});
 
 	// Reload page for corresponding selection
@@ -287,6 +428,14 @@ function finishLoading(tableData, searchData) {
 		}
 	});
 }
+
+var selectDriver = document.getElementById("selectDriver");
+var selectNumber = document.getElementById("selectNumber");
+var selectSeries = document.getElementById("selectSeries");
+var selectSponsor = document.getElementById("selectSponsor");
+var selectTeam = document.getElementById("selectTeam");
+var selectManufacturer = document.getElementById("selectManufacturer");
+var selectYear = document.getElementById("selectYear");
 
 window.addEventListener("load", function() {
 	getTableData();
