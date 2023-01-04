@@ -35,6 +35,7 @@ html, body {
   margin: auto;
   width: 100%;
   text-align: center;
+  flex-wrap:  wrap;
 }
 
 .searchRow::after {
@@ -43,8 +44,29 @@ html, body {
   display: table;
 }
 
-.column input {
+.searchColumn {
+  flex: 11.11%;
+  padding: 5px;
+  text-align: center;
+}
+
+.searchColumn input {
   width: 90%;
+  font-size: 16px;
+}
+
+/* On screens that are 1440px wide or less, go from one row to two rows */
+@media screen and (max-width: 1440px) {
+  .searchColumn {
+    flex: 20%;
+  }
+}
+
+/* On screens that are 960px wide or less, go from two rows to four rows */
+@media screen and (max-width: 960px) {
+  .searchColumn {
+    flex: 33.33%;
+  }
 }
 
 .pagination {

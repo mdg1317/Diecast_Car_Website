@@ -1,5 +1,5 @@
 // Author: Matthew Groh
-// Last Updated: 8/16/2022
+// Last Updated: 1/4/2023
 //
 // index.js
 //
@@ -56,7 +56,14 @@ function generateMain(tableData, pageNum){
 	var extraRows = Math.ceil((carsPerPage - (numRows * numCols)) / numCols);
 	numRows += extraRows;
 
+	var endOfPage = false;
+
 	for(var i = 0; i < numRows; i++){
+		// If end of table is reached, stop making rows
+		if(i * numCols > numCars){
+			break;
+		}
+
 		// Create new "div" element for a new row
 		currentRow = document.createElement("div");
 		currentRow.setAttribute("id", "row" + i);
@@ -66,8 +73,6 @@ function generateMain(tableData, pageNum){
 		// number of cars per page and current page
 		var startingID = i * numCols + (pageNum * carsPerPage);
 		var endingID = (i + 1) * numCols + (pageNum * carsPerPage);
-
-		var endOfPage = false;
 
 		// Populate row with correct number of columns
 		for(var j = startingID; j < endingID; j++){
