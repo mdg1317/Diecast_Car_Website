@@ -177,7 +177,7 @@ function createSearchData(tableData) {
 	}
 
 	// Get all values from search fields
-	var driverValue = searchDriver.value.toLowerCase();
+	var driverValue = searchDriver.value;
 	var numberValue = searchNumber.value;
 	var seriesValue = searchSeries.value;
 	var sponsorValue = searchSponsor.value;
@@ -195,6 +195,15 @@ function createSearchData(tableData) {
 	sessionStorage.setItem("searchManufacturer", manufacturerValue);
 	sessionStorage.setItem("searchYear", yearValue);
 
+	// Remove punctuation and properly format inputted terms
+	driverValue = driverValue.replace(/\./g, '').replace(/\//g, ' ').toLowerCase().trim();
+	numberValue = numberValue.trim();
+	seriesValue = seriesValue.toLowerCase().trim();
+	sponsorValue = sponsorValue.replace(/[\.\'#\:\?\$,]/g, '').replace(/[-\/]/g, ' ').replace(/\s{2,}/g, ' ').toLowerCase().trim();
+	teamValue = teamValue.replace(/[/-\/]/g, ' ').replace(/[\.,]/g, '').toLowerCase().trim();
+	manufacturerValue = manufacturerValue.toLowerCase().trim();
+	yearValue = yearValue.trim();
+
 	// If all fields are empty, clear searchData and regenerate page
 	if(driverValue.length == 0 && numberValue.length == 0 &&
 		seriesValue.length == 0 && sponsorValue.length == 0 &&
@@ -208,15 +217,16 @@ function createSearchData(tableData) {
 
 	// If any entries in tableData match ALL inputs, add it to searchData
 	for(var i = 0; i < tableData.length; i++){
-		var currentDriver = tableData[i].driver.toLowerCase();
+		// Get and format table data to match inputted terms
+		var currentDriver = tableData[i].driver.replace(/\./g, '').replace(/\//g, ' ').toLowerCase();
 		var currentNumber = tableData[i].number;
 		var currentSeries = tableData[i].series.toLowerCase();
-		var currentSponsor = tableData[i].sponsor.toLowerCase();
-		var currentTeam = tableData[i].team.toLowerCase();
+		var currentSponsor = tableData[i].sponsor.replace(/[\.\'#\:\?\$,]/g, '').replace(/[-\/]/g, ' ').replace(/\s{2,}/g, ' ').toLowerCase();
+		var currentTeam = tableData[i].team.replace(/[/-\/]/g, ' ').replace(/[\.,]/g, '').toLowerCase();
 		var currentManufacturer = tableData[i].manufacturer.toLowerCase();
 		var currentYear = tableData[i].year;
 
-		if(currentDriver.includes(driverValue) && currentNumber.includes(numberValue)
+		if(currentDriver.includes(driverValue.toLowerCase()) && currentNumber.includes(numberValue)
 			&& currentSeries.includes(seriesValue) && currentSponsor.includes(sponsorValue)
 			&& currentTeam.includes(teamValue) && currentManufacturer.includes(manufacturerValue)
 			&& currentYear.includes(yearValue)){
