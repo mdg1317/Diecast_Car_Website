@@ -39,11 +39,22 @@ function generateMain(tableData, pageNum){
 	var currentRow, newDiv, newLink, newImg, newP;
 	var resultsCounter = document.getElementById("resultsCounter");
 
-	// Number of rows and columns to display per page
-	var numRows = 10;
-	var numCols = 10;
-	var carsPerPage = numRows * numCols;
+	// If results have already been generated, clear the page before regenerating
+	// (Primarily for the resizing function)
+	if(document.getElementById("row0") != null){
+		clearPage();
+	}
+
 	var numCars = tableData.length;
+	var carsPerPage = 50;
+
+	// Set number of columns to how many can fit on current window size, or 1 if super small
+	// Get number of rows by dividing number of cars by number of columns
+	// Then add appropriate number of extra rows for overflow
+	var numCols = Math.max(1, Math.floor(window.innerWidth / 202));
+	var numRows = Math.round(carsPerPage / numCols);
+	var extraRows = Math.ceil((carsPerPage - (numRows * numCols)) / numCols);
+	numRows += extraRows;
 
 	for(var i = 0; i < numRows; i++){
 		// Create new "div" element for a new row
@@ -56,14 +67,24 @@ function generateMain(tableData, pageNum){
 		var startingID = i * numCols + (pageNum * carsPerPage);
 		var endingID = (i + 1) * numCols + (pageNum * carsPerPage);
 
+		var endOfPage = false;
+
 		// Populate row with correct number of columns
 		for(var j = startingID; j < endingID; j++){
+			// If reached end of page, set endOfPage flag
+			// This will still create columns for formatting purposes but
+			// will not populate them
+			if(j != startingID && j % carsPerPage == 0){
+				endOfPage = true;
+			}
+
+			// Create new column
 			newDiv = document.createElement("div");
 			newDiv.setAttribute("class", "column");
 
 			// Only add links, images, and text if end of
-			// data has not been reached
-			if(j < numCars){
+			// data or end of page has not been reached
+			if(!endOfPage && j < numCars){
 				newLink = document.createElement("a");
 				newImg = document.createElement("img");
 				newP = document.createElement("p");
@@ -127,19 +148,18 @@ function clearPage() {
 	// IMPROVE LATER
 
 	// Delete all page select options
-	/*var pageSelect = document.getElementById("pageSelect");
+	var pageSelect = document.getElementById("pageSelect");
 	for(var i = pageSelect.options.length - 1; i > 0; i--){
 		pageSelect.remove(i);
 	}
 
 	// Delete all previous dynamic HTML
-	for(var j = 9; j > -1; j--){
+	for(var j = 49; j > -1; j--){
 		var thisRow = document.getElementById("row" + j);
 		if(thisRow){
 			thisRow.remove();
 		}
-	}*/
-	location.reload();
+	}
 }
 
 function createSearchData(tableData) {
@@ -180,8 +200,6 @@ function createSearchData(tableData) {
 		generateMain(tableData, 0);
 		return;
 	}
-
-	console.log(searchNumber);
 
 	// If any entries in tableData match ALL inputs, add it to searchData
 	for(var i = 0; i < tableData.length; i++){
@@ -297,4 +315,13 @@ var searchYear = document.getElementById("searchYear");
 window.addEventListener("load", function() {
 	window.scrollTo(0, 0);
 	getTableData();
+});
+
+window.addEventListener("resize", function() {
+	// Regenerate page with appropriate table and new window size
+	if(sessionStorage.getItem("searchData") != null){
+		generateMain(JSON.parse(sessionStorage.getItem("searchData")), sessionStorage.getItem("pageNum"));
+	} else {
+		generateMain(JSON.parse(sessionStorage.getItem("tableData")), sessionStorage.getItem("pageNum"));
+	}
 });
