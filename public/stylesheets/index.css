@@ -3,6 +3,10 @@ html, body {
     overflow-x: hidden;
 }
 
+#header {
+  font-size: 30px;
+}
+
 .row {
   display: flex;
 }
