@@ -137,14 +137,10 @@ function generateMain(tableData, pageNum){
 	// Add appropriate number of page select options
 	var pageSelect = document.getElementById("pageSelect");
 	for(var m = 2; m < Math.ceil(numCars / carsPerPage) + 1; m++){
-		//console.log("m: " + m);
-		//console.log(m - 1);
 		pageSelect.options.add(new Option(m, m - 1));
-		//console.log(pageSelect.options[pageSelect.options.length].value);
 	}
 
 	// Correct the starting page select value
-	//console.log(pageNum);
 	pageSelect.value = pageNum;
 }
 
@@ -210,7 +206,7 @@ function createSearchData(tableData) {
 		teamValue.length == 0 && manufacturerValue.length == 0 &&
 		yearValue.length == 0){
 		sessionStorage.removeItem("searchData");
-		location.reload();
+		clearPage();
 		generateMain(tableData, 0);
 		return;
 	}
@@ -237,10 +233,12 @@ function createSearchData(tableData) {
 	// Add searchData to sessionStorage and regenerate page
 	sessionStorage.setItem("searchData", JSON.stringify(searchData));
 	
+	// Reset page number
 	sessionStorage.setItem("pageNum", 0);
 	pageSelect.value = 0;
 
-	location.reload();
+	// Regenerate page
+	clearPage();
 	generateMain(searchData, sessionStorage.getItem("pageNum"));
 
 }
@@ -305,7 +303,7 @@ function finishLoading(tableData, searchData) {
 	// Reload page for corresponding selection
 	pageSelect.addEventListener("change", function() {
 		sessionStorage.setItem("pageNum", pageSelect.value);
-		location.reload();
+		clearPage();
 		
 		//console.log(sessionStorage.getItem("pageNum"));
 		// If user performed a search, reload the page corresponding to searchData
@@ -317,15 +315,6 @@ function finishLoading(tableData, searchData) {
 		}
 	});
 }
-
-// Search fields used for various functions
-var searchDriver = document.getElementById("searchDriver");
-var searchNumber = document.getElementById("searchNumber");
-var searchSeries = document.getElementById("searchSeries");
-var searchSponsor = document.getElementById("searchSponsor");
-var searchTeam = document.getElementById("searchTeam");
-var searchManufacturer = document.getElementById("searchManufacturer");
-var searchYear = document.getElementById("searchYear");
 
 window.addEventListener("load", function() {
 	window.scrollTo(0, 0);
