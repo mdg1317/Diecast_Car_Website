@@ -1,5 +1,5 @@
 // Author: Matthew Groh
-// Last Updated: 8/16/2022
+// Last Updated: 1/26/2023
 //
 // individual_page.js
 //
@@ -56,6 +56,14 @@ $(document).ready(function() {
 	// Get specific entry that matches id
 	var carData = carArray.find(o => o.id == location.search.substring(1));
 	fillPage(carData);
+
+	// Set correct page number for when using the back button after
+	// using prev and next buttons
+	var numInList = carArray.indexOf(carData);
+	sessionStorage.setItem("pageNum", (Math.ceil((numInList + 1) / 50) - 1));
+
+	// Save current car ID for when reloading main page
+	sessionStorage.setItem("savedID", location.search.substring(1));
 
 	var prevButton = document.getElementById("prevButton");
 	var nextButton = document.getElementById("nextButton");

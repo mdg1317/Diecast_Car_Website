@@ -139,9 +139,25 @@ function generateMain(tableData, pageNum){
 	for(var m = 2; m < Math.ceil(numCars / carsPerPage) + 1; m++){
 		pageSelect.options.add(new Option(m, m - 1));
 	}
+	if(pageSelect.length == 1){
+		pageSelect.disabled = true;
+	} else {
+		pageSelect.disabled = false;
+	}
 
 	// Correct the starting page select value
 	pageSelect.value = pageNum;
+
+	// If returning from individual page, center last viewed car on the page
+	if(sessionStorage.getItem("savedID") != null){
+		console.log(sessionStorage.getItem("savedID"));
+		document.getElementById("image" + sessionStorage.getItem("savedID")).scrollIntoView({
+			behavior: "auto",
+			block: "center",
+			inline: "center"
+		});
+		sessionStorage.removeItem("savedID");
+	}
 }
 
 function clearPage() {
@@ -368,7 +384,6 @@ function finishLoading(tableData, filterData) {
 }
 
 window.addEventListener("load", function() {
-	window.scrollTo(0, 0);
 	getTableData();
 });
 
