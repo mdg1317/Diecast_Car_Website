@@ -49,27 +49,41 @@ html, body {
 }
 
 .filterColumn {
-  flex: 11.11%;
+  flex: 20%;
   padding: 5px;
   text-align: center;
+  display: flex;
 }
 
 .filterColumn input {
   width: 90%;
   font-size: 16px;
+  vertical-align: middle;
 }
 
-/* On screens that are 1440px wide or less, go from one row to two rows */
-@media screen and (max-width: 1440px) {
+.filterColumn button {
+  font-size: 16px;
+  margin: auto;
+  left: 0px;
+  vertical-align: middle;
+}
+
+#clearAll {
+  font-size: 16px;
+  text-align: center;
+}
+
+/* On screens that are 1280px wide or less, go from two rows to four rows */
+@media screen and (max-width: 1280px) {
   .filterColumn {
-    flex: 20%;
+    flex: 33.33%;
   }
 }
 
-/* On screens that are 960px wide or less, go from two rows to four rows */
-@media screen and (max-width: 960px) {
+/* On screens that are 720px wide or less, go from four rows to eight rows */
+@media screen and (max-width: 720px) {
   .filterColumn {
-    flex: 33.33%;
+    flex: 50%;
   }
 }
 

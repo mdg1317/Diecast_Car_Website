@@ -270,17 +270,67 @@ function finishLoading(tableData, filterData) {
 	filterOther.value = sessionStorage.getItem("filterOther");
 
 	var filters = document.getElementById("filters");
-	var clearButton = document.getElementById("clearButton");
-	var submitButton = document.getElementById("submitButton");
 	var pageSelect = document.getElementById("pageSelect");
+
+	var clearDriver = document.getElementById("clearDriver");
+	var clearNumber = document.getElementById("clearNumber");
+	var clearSeries = document.getElementById("clearSeries");
+	var clearSponsor = document.getElementById("clearSponsor");
+	var clearTeam = document.getElementById("clearTeam");
+	var clearManufacturer = document.getElementById("clearManufacturer");
+	var clearYear = document.getElementById("clearYear");
+	var clearOther = document.getElementById("clearOther");
+	var clearAll = document.getElementById("clearAll");
 
 	// Filter results in real time as characters are typed
 	filters.addEventListener("keyup", function(event) {
 		createFilterData(tableData);
 	});
 
+	// Clear data only from respective filter and reload
+	clearDriver.addEventListener("click", function() {
+		filterDriver.value = "";
+		sessionStorage.setItem("filterDriver", "");
+		createFilterData(tableData);
+	});
+	clearNumber.addEventListener("click", function() {
+		filterNumber.value = "";
+		sessionStorage.setItem("filterNumber", "");
+		createFilterData(tableData);
+	});
+	clearSeries.addEventListener("click", function() {
+		filterSeries.value = "";
+		sessionStorage.setItem("filterSeries", "");
+		createFilterData(tableData);
+	});
+	clearSponsor.addEventListener("click", function() {
+		filterSponsor.value = "";
+		sessionStorage.setItem("filterSponsor", "");
+		createFilterData(tableData);
+	});
+	clearTeam.addEventListener("click", function() {
+		filterTeam.value = "";
+		sessionStorage.setItem("filterTeam", "");
+		createFilterData(tableData);
+	});
+	clearManufacturer.addEventListener("click", function() {
+		filterManufacturer.value = "";
+		sessionStorage.setItem("filterManufacturer", "");
+		createFilterData(tableData);
+	});
+	clearYear.addEventListener("click", function() {
+		filterYear.value = "";
+		sessionStorage.setItem("filterYear", "");
+		createFilterData(tableData);
+	});
+	clearOther.addEventListener("click", function() {
+		filterOther.value = "";
+		sessionStorage.setItem("filterOther", "");
+		createFilterData(tableData);
+	});
+
 	// Clear all filters from both the page and sessionStorage and reload
-	clearButton.addEventListener("click", function() {
+	clearAll.addEventListener("click", function() {
 		filterDriver.value = "";
 		filterNumber.value = "";
 		filterSeries.value = "";
