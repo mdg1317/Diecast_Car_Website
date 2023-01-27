@@ -25,7 +25,7 @@ html, body {
 }
 
 .column img {
-	margin-top: 8px;
+  margin-top: 8px;
   vertical-align: middle;
   display: block;
   margin-left: auto;
@@ -34,7 +34,7 @@ html, body {
   width: 192px;
 }
 
-.searchRow {
+.filterRow {
   display: flex;
   margin: auto;
   width: 100%;
@@ -42,33 +42,33 @@ html, body {
   flex-wrap:  wrap;
 }
 
-.searchRow::after {
+.filterRow::after {
   content: "";
   clear: both;
   display: table;
 }
 
-.searchColumn {
+.filterColumn {
   flex: 11.11%;
   padding: 5px;
   text-align: center;
 }
 
-.searchColumn input {
+.filterColumn input {
   width: 90%;
   font-size: 16px;
 }
 
 /* On screens that are 1440px wide or less, go from one row to two rows */
 @media screen and (max-width: 1440px) {
-  .searchColumn {
+  .filterColumn {
     flex: 20%;
   }
 }
 
 /* On screens that are 960px wide or less, go from two rows to four rows */
 @media screen and (max-width: 960px) {
-  .searchColumn {
+  .filterColumn {
     flex: 33.33%;
   }
 }

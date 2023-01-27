@@ -47,8 +47,8 @@ $(document).ready(function() {
 
 	// If a search was made, use that subset
 	// If not, use whole array
-	if(sessionStorage.getItem("searchData") != null){
-		carArray = JSON.parse(sessionStorage.getItem("searchData"));
+	if(sessionStorage.getItem("filterData") != null){
+		carArray = JSON.parse(sessionStorage.getItem("filterData"));
 	} else {
 		carArray = JSON.parse(sessionStorage.getItem("tableData"));
 	}

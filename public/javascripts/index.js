@@ -1,24 +1,24 @@
 // Author: Matthew Groh
-// Last Updated: 1/4/2023
+// Last Updated: 1/26/2023
 //
 // index.js
 //
 // This script loads the full table from the SQL database, displays the main
-// page, and handles the search functionality
+// page, and handles the filter functionality
 
 const getTableData = async () => {
 	var tableData = [];
-	var searchData = null;
+	var filterData = null;
 	// If data is already in sessionStorage, load it into tableData
 	// If not, perform SQL query and load that into tableData AND sessionStorage
 	// After either is done, call finishLoading() to continue
 	if(sessionStorage.getItem("tableData") != null){
 		tableData = JSON.parse(sessionStorage.getItem("tableData"));
-		// Set searchData if it exists
-		if(sessionStorage.getItem("searchData") != null){
-			searchData = JSON.parse(sessionStorage.getItem("searchData"));
+		// Set filterData if it exists
+		if(sessionStorage.getItem("filterData") != null){
+			filterData = JSON.parse(sessionStorage.getItem("filterData"));
 		}
-		finishLoading(tableData, searchData);
+		finishLoading(tableData, filterData);
 	} else {
 		// Send a POST request invoking "/tableData" route found in app.js
 		$.post({
@@ -27,7 +27,7 @@ const getTableData = async () => {
 			success: function(data, ) {
 				sessionStorage.setItem("tableData", JSON.stringify(data));
 				tableData = JSON.parse(sessionStorage.getItem("tableData"));
-				finishLoading(tableData, searchData);
+				finishLoading(tableData, filterData);
 			}
 		}).fail(function(jqxhr, settings, ex) {
 			console.log("Could not access table");
@@ -163,35 +163,35 @@ function clearPage() {
 	}
 }
 
-function createSearchData(tableData) {
-	var searchData = [];
+function createFilterData(tableData) {
+	var filterData = [];
 	var pageSelect = document.getElementById("pageSelect");
 
-	// Delete previous search data if it exists
-	if(sessionStorage.getItem("searchData") != null){
-		sessionStorage.removeItem("searchData");
+	// Delete previous filters if they exist
+	if(sessionStorage.getItem("filterData") != null){
+		sessionStorage.removeItem("filterData");
 	}
 
-	// Get all values from search fields
-	var driverValue = searchDriver.value;
-	var numberValue = searchNumber.value;
-	var seriesValue = searchSeries.value;
-	var sponsorValue = searchSponsor.value;
-	var teamValue = searchTeam.value;
-	var manufacturerValue = searchManufacturer.value;
-	var yearValue = searchYear.value;
-	var otherValue = searchOther.value;
+	// Get all values from filter fields
+	var driverValue = filterDriver.value;
+	var numberValue = filterNumber.value;
+	var seriesValue = filterSeries.value;
+	var sponsorValue = filterSponsor.value;
+	var teamValue = filterTeam.value;
+	var manufacturerValue = filterManufacturer.value;
+	var yearValue = filterYear.value;
+	var otherValue = filterOther.value;
 
-	// Store search values in sessionStorage so they will
-	// persist when reloading pages without changing search terms
-	sessionStorage.setItem("searchDriver", driverValue);
-	sessionStorage.setItem("searchNumber", numberValue);
-	sessionStorage.setItem("searchSeries", seriesValue);
-	sessionStorage.setItem("searchSponsor", sponsorValue);
-	sessionStorage.setItem("searchTeam", teamValue);
-	sessionStorage.setItem("searchManufacturer", manufacturerValue);
-	sessionStorage.setItem("searchYear", yearValue);
-	sessionStorage.setItem("searchOther", otherValue);
+	// Store filters in sessionStorage so they will
+	// persist when reloading pages without changing them
+	sessionStorage.setItem("filterDriver", driverValue);
+	sessionStorage.setItem("filterNumber", numberValue);
+	sessionStorage.setItem("filterSeries", seriesValue);
+	sessionStorage.setItem("filterSponsor", sponsorValue);
+	sessionStorage.setItem("filterTeam", teamValue);
+	sessionStorage.setItem("filterManufacturer", manufacturerValue);
+	sessionStorage.setItem("filterYear", yearValue);
+	sessionStorage.setItem("filterOther", otherValue);
 
 	// Remove punctuation and properly format inputted terms
 	driverValue = driverValue.replace(/\./g, '').replace(/\//g, ' ').toLowerCase().trim();
@@ -201,24 +201,20 @@ function createSearchData(tableData) {
 	teamValue = teamValue.replace(/[/-\/]/g, ' ').replace(/[\.,]/g, '').toLowerCase().trim();
 	manufacturerValue = manufacturerValue.toLowerCase().trim();
 	yearValue = yearValue.trim();
-	if(otherValue == null){
-		otherValue == "";
-	} else {
-		otherValue = otherValue.replace(/[\.\'#\:\?\$,]/g, '').replace(/[-\/]/g, ' ').replace(/\s{2,}/g, ' ').toLowerCase().trim();
-	}
+	otherValue = otherValue.replace(/[\.\'#\:\?\$,]/g, '').replace(/[-\/]/g, ' ').replace(/\s{2,}/g, ' ').toLowerCase().trim();
 
-	// If all fields are empty, clear searchData and regenerate page
+	// If all fields are empty, clear filterData and regenerate page
 	if(driverValue.length == 0 && numberValue.length == 0 &&
 		seriesValue.length == 0 && sponsorValue.length == 0 &&
 		teamValue.length == 0 && manufacturerValue.length == 0 &&
 		yearValue.length == 0 && otherValue == 0){
-		sessionStorage.removeItem("searchData");
+		sessionStorage.removeItem("filterData");
 		clearPage();
 		generateMain(tableData, 0);
 		return;
 	}
 
-	// If any entries in tableData match ALL inputs, add it to searchData
+	// If any entries in tableData match ALL inputs, add it to filterData
 	for(var i = 0; i < tableData.length; i++){
 		// Get and format table data to match inputted terms
 		var currentDriver = tableData[i].driver.replace(/\./g, '').replace(/\//g, ' ').toLowerCase();
@@ -234,12 +230,12 @@ function createSearchData(tableData) {
 			&& currentSeries.includes(seriesValue) && currentSponsor.includes(sponsorValue)
 			&& currentTeam.includes(teamValue) && currentManufacturer.includes(manufacturerValue)
 			&& currentYear.includes(yearValue) && currentOther.includes(otherValue)){
-			searchData.push(tableData[i]);
+			filterData.push(tableData[i]);
 		}
 	}
 
-	// Add searchData to sessionStorage and regenerate page
-	sessionStorage.setItem("searchData", JSON.stringify(searchData));
+	// Add filterData to sessionStorage and regenerate page
+	sessionStorage.setItem("filterData", JSON.stringify(filterData));
 	
 	// Reset page number
 	sessionStorage.setItem("pageNum", 0);
@@ -247,68 +243,63 @@ function createSearchData(tableData) {
 
 	// Regenerate page
 	clearPage();
-	generateMain(searchData, sessionStorage.getItem("pageNum"));
+	generateMain(filterData, sessionStorage.getItem("pageNum"));
 
 }
 
-function finishLoading(tableData, searchData) {
-	// Generate dynamic HTML using searchData if it exists
+function finishLoading(tableData, filterData) {
+	// Generate dynamic HTML using filterData if it exists
 	// If not, use full table data
 	if(sessionStorage.getItem("pageNum") == null){
 		sessionStorage.setItem("pageNum", 0);
 	}
-	if(searchData != null){
-		generateMain(searchData, sessionStorage.getItem("pageNum"));
+	if(filterData != null){
+		generateMain(filterData, sessionStorage.getItem("pageNum"));
 	} else {
 		generateMain(tableData, sessionStorage.getItem("pageNum"));
 	}
 
-	// Set search field values to those found in sessionStorage
-	searchDriver.value = sessionStorage.getItem("searchDriver");
-	searchNumber.value = sessionStorage.getItem("searchNumber");
-	searchSeries.value = sessionStorage.getItem("searchSeries");
-	searchSponsor.value = sessionStorage.getItem("searchSponsor");
-	searchTeam.value = sessionStorage.getItem("searchTeam");
-	searchManufacturer.value = sessionStorage.getItem("searchManufacturer");
-	searchYear.value = sessionStorage.getItem("searchYear");
-	searchOther.value = sessionStorage.getItem("searchOther");
+	// Set filters to those found in sessionStorage
+	filterDriver.value = sessionStorage.getItem("filterDriver");
+	filterNumber.value = sessionStorage.getItem("filterNumber");
+	filterSeries.value = sessionStorage.getItem("filterSeries");
+	filterSponsor.value = sessionStorage.getItem("filterSponsor");
+	filterTeam.value = sessionStorage.getItem("filterTeam");
+	filterManufacturer.value = sessionStorage.getItem("filterManufacturer");
+	filterYear.value = sessionStorage.getItem("filterYear");
+	filterOther.value = sessionStorage.getItem("filterOther");
 
-	var searchBars = document.getElementById("searchBars");
+	var filters = document.getElementById("filters");
 	var clearButton = document.getElementById("clearButton");
 	var submitButton = document.getElementById("submitButton");
 	var pageSelect = document.getElementById("pageSelect");
 
-	// Perform search function if either "Submit" button is clicked
-	// or Enter key ius pressed in any box
-	searchBars.addEventListener("keypress", function(event) {
-		if(event.key === "Enter") {
-			createSearchData(tableData);
-		}
-	});
-	submitButton.addEventListener("click", function() {
-		createSearchData(tableData);
+	// Filter results in real time as characters are typed
+	filters.addEventListener("keyup", function(event) {
+		createFilterData(tableData);
 	});
 
-
-	// Clear all search inputs from both the page and sessionStorage
+	// Clear all filters from both the page and sessionStorage and reload
 	clearButton.addEventListener("click", function() {
-		searchDriver.value = "";
-		searchNumber.value = "";
-		searchSeries.value = "";
-		searchSponsor.value = "";
-		searchTeam.value = "";
-		searchManufacturer.value = "";
-		searchYear.value = "";
-		searchOther.value = "";
+		filterDriver.value = "";
+		filterNumber.value = "";
+		filterSeries.value = "";
+		filterSponsor.value = "";
+		filterTeam.value = "";
+		filterManufacturer.value = "";
+		filterYear.value = "";
+		filterOther.value = "";
 
-		sessionStorage.setItem("searchDriver", "");
-		sessionStorage.setItem("searchNumber", "");
-		sessionStorage.setItem("searchSeries", "");
-		sessionStorage.setItem("searchSponsor", "");
-		sessionStorage.setItem("searchTeam", "");
-		sessionStorage.setItem("searchManufacturer", "");
-		sessionStorage.setItem("searchYear", "");
-		sessionStorage.setItem("searchOther", "");
+		sessionStorage.setItem("filterDriver", "");
+		sessionStorage.setItem("filterNumber", "");
+		sessionStorage.setItem("filterSeries", "");
+		sessionStorage.setItem("filterSponsor", "");
+		sessionStorage.setItem("filterTeam", "");
+		sessionStorage.setItem("filterManufacturer", "");
+		sessionStorage.setItem("filterYear", "");
+		sessionStorage.setItem("filterOther", "");
+
+		createFilterData(tableData);
 	});
 
 	// Reload page for corresponding selection
@@ -316,11 +307,10 @@ function finishLoading(tableData, searchData) {
 		sessionStorage.setItem("pageNum", pageSelect.value);
 		clearPage();
 		
-		//console.log(sessionStorage.getItem("pageNum"));
-		// If user performed a search, reload the page corresponding to searchData
+		// If user used one or more filters, reload the page corresponding to filterData
 		// If not, reload corresponding to the full table
-		if(sessionStorage.getItem("searchData") != null){
-			generateMain(JSON.parse(sessionStorage.getItem("searchData")), sessionStorage.getItem("pageNum"));
+		if(sessionStorage.getItem("filterData") != null){
+			generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
 		} else {
 			generateMain(tableData, sessionStorage.getItem("pageNum"));
 		}
@@ -334,8 +324,8 @@ window.addEventListener("load", function() {
 
 window.addEventListener("resize", function() {
 	// Regenerate page with appropriate table and new window size
-	if(sessionStorage.getItem("searchData") != null){
-		generateMain(JSON.parse(sessionStorage.getItem("searchData")), sessionStorage.getItem("pageNum"));
+	if(sessionStorage.getItem("filterData") != null){
+		generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
 	} else {
 		generateMain(JSON.parse(sessionStorage.getItem("tableData")), sessionStorage.getItem("pageNum"));
 	}
