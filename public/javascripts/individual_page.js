@@ -12,7 +12,7 @@ function fillPage(data){
 	document.getElementById("driver").innerHTML = data.driver;
 	document.getElementById("number").innerHTML = data.number;
 	document.getElementById("series").innerHTML = data.series;
-	document.getElementById("sponsor").innerHTML = data.sponsor;
+	document.getElementById("sponsor").innerHTML = data.sponsor + " - " + data.other;
 	document.getElementById("team").innerHTML = data.team;
 	document.getElementById("manufacturer").innerHTML = data.manufacturer;
 	document.getElementById("year").innerHTML = data.year;

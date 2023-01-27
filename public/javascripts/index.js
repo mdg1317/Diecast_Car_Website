@@ -180,6 +180,7 @@ function createSearchData(tableData) {
 	var teamValue = searchTeam.value;
 	var manufacturerValue = searchManufacturer.value;
 	var yearValue = searchYear.value;
+	var otherValue = searchOther.value;
 
 	// Store search values in sessionStorage so they will
 	// persist when reloading pages without changing search terms
@@ -190,6 +191,7 @@ function createSearchData(tableData) {
 	sessionStorage.setItem("searchTeam", teamValue);
 	sessionStorage.setItem("searchManufacturer", manufacturerValue);
 	sessionStorage.setItem("searchYear", yearValue);
+	sessionStorage.setItem("searchOther", otherValue);
 
 	// Remove punctuation and properly format inputted terms
 	driverValue = driverValue.replace(/\./g, '').replace(/\//g, ' ').toLowerCase().trim();
@@ -199,12 +201,17 @@ function createSearchData(tableData) {
 	teamValue = teamValue.replace(/[/-\/]/g, ' ').replace(/[\.,]/g, '').toLowerCase().trim();
 	manufacturerValue = manufacturerValue.toLowerCase().trim();
 	yearValue = yearValue.trim();
+	if(otherValue == null){
+		otherValue == "";
+	} else {
+		otherValue = otherValue.replace(/[\.\'#\:\?\$,]/g, '').replace(/[-\/]/g, ' ').replace(/\s{2,}/g, ' ').toLowerCase().trim();
+	}
 
 	// If all fields are empty, clear searchData and regenerate page
 	if(driverValue.length == 0 && numberValue.length == 0 &&
 		seriesValue.length == 0 && sponsorValue.length == 0 &&
 		teamValue.length == 0 && manufacturerValue.length == 0 &&
-		yearValue.length == 0){
+		yearValue.length == 0 && otherValue == 0){
 		sessionStorage.removeItem("searchData");
 		clearPage();
 		generateMain(tableData, 0);
@@ -221,11 +228,12 @@ function createSearchData(tableData) {
 		var currentTeam = tableData[i].team.replace(/[/-\/]/g, ' ').replace(/[\.,]/g, '').toLowerCase();
 		var currentManufacturer = tableData[i].manufacturer.toLowerCase();
 		var currentYear = tableData[i].year;
+		var currentOther = tableData[i].other.replace(/[\.\'#\:\?\$,]/g, '').replace(/[-\/]/g, ' ').replace(/\s{2,}/g, ' ').toLowerCase();
 
-		if(currentDriver.includes(driverValue.toLowerCase()) && currentNumber.includes(numberValue)
+		if(currentDriver.includes(driverValue) && currentNumber.includes(numberValue)
 			&& currentSeries.includes(seriesValue) && currentSponsor.includes(sponsorValue)
 			&& currentTeam.includes(teamValue) && currentManufacturer.includes(manufacturerValue)
-			&& currentYear.includes(yearValue)){
+			&& currentYear.includes(yearValue) && currentOther.includes(otherValue)){
 			searchData.push(tableData[i]);
 		}
 	}
@@ -263,6 +271,7 @@ function finishLoading(tableData, searchData) {
 	searchTeam.value = sessionStorage.getItem("searchTeam");
 	searchManufacturer.value = sessionStorage.getItem("searchManufacturer");
 	searchYear.value = sessionStorage.getItem("searchYear");
+	searchOther.value = sessionStorage.getItem("searchOther");
 
 	var searchBars = document.getElementById("searchBars");
 	var clearButton = document.getElementById("clearButton");
@@ -290,6 +299,7 @@ function finishLoading(tableData, searchData) {
 		searchTeam.value = "";
 		searchManufacturer.value = "";
 		searchYear.value = "";
+		searchOther.value = "";
 
 		sessionStorage.setItem("searchDriver", "");
 		sessionStorage.setItem("searchNumber", "");
@@ -298,6 +308,7 @@ function finishLoading(tableData, searchData) {
 		sessionStorage.setItem("searchTeam", "");
 		sessionStorage.setItem("searchManufacturer", "");
 		sessionStorage.setItem("searchYear", "");
+		sessionStorage.setItem("searchOther", "");
 	});
 
 	// Reload page for corresponding selection
