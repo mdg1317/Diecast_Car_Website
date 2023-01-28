@@ -124,6 +124,7 @@ function generateMain(tableData, pageNum){
 	// Add table data into newly created rows
 	var index = pageNum * carsPerPage;
 	var counter = 0;
+	//var carIDs = [];
 	for(var k = index; k < numCars; k++){
 		// Break loop if max number of cars on page is reached
 		if(counter == carsPerPage){
@@ -131,8 +132,15 @@ function generateMain(tableData, pageNum){
 		}
 		document.getElementById("result" + tableData[k].id).innerHTML = tableData[k].number + " - " + tableData[k].driver;
 		document.getElementById("image" + tableData[k].id).src = "thumbnails/" + tableData[k].image0;
+
+		// Add car ID to array for image checking
+		//carIDs.push(tableData[k].id);
+
 		counter++;
 	}
+
+	// Check if image0 exists for all cars on page
+	//checkImages(tableData, carIDs);
 
 	// Add appropriate number of page select options
 	var pageSelect = document.getElementById("pageSelect");
@@ -150,7 +158,6 @@ function generateMain(tableData, pageNum){
 
 	// If returning from individual page, center last viewed car on the page
 	if(sessionStorage.getItem("savedID") != null){
-		console.log(sessionStorage.getItem("savedID"));
 		document.getElementById("image" + sessionStorage.getItem("savedID")).scrollIntoView({
 			behavior: "auto",
 			block: "center",
@@ -159,6 +166,26 @@ function generateMain(tableData, pageNum){
 		sessionStorage.removeItem("savedID");
 	}
 }
+
+/*const checkImages = async (tableData, carIDs) => {
+	// Iterate through list of cars and check if image0 exists
+	// for all of them. If so, display it. If not, display default image
+	const promises = await carIDs.map(async item => {
+		var car = tableData.find(o => o.id == item);
+		fetch("thumbnails/" + car.image0) 
+			.then(response => { 
+				if (!response.ok) {
+					document.getElementById("image" + car.id).src = "images/NoImageAvailable.jpg";
+					throw new Error("Image not found");
+				} else {
+					document.getElementById("image" + car.id).src = "thumbnails/" + car.image0;
+				} 
+			}) 
+			.catch(error => { 
+				console.log(error); 
+			});
+	})
+}*/
 
 function clearPage() {
 	// NOT GREAT
@@ -305,44 +332,28 @@ function finishLoading(tableData, filterData) {
 
 	// Clear data only from respective filter and reload
 	clearDriver.addEventListener("click", function() {
-		filterDriver.value = "";
-		sessionStorage.setItem("filterDriver", "");
-		createFilterData(tableData);
+		clearFilterData(tableData, "filterDriver")
 	});
 	clearNumber.addEventListener("click", function() {
-		filterNumber.value = "";
-		sessionStorage.setItem("filterNumber", "");
-		createFilterData(tableData);
+		clearFilterData(tableData, "filterNumber")
 	});
 	clearSeries.addEventListener("click", function() {
-		filterSeries.value = "";
-		sessionStorage.setItem("filterSeries", "");
-		createFilterData(tableData);
+		clearFilterData(tableData, "filterSeries")
 	});
 	clearSponsor.addEventListener("click", function() {
-		filterSponsor.value = "";
-		sessionStorage.setItem("filterSponsor", "");
-		createFilterData(tableData);
+		clearFilterData(tableData, "filterSponsor")
 	});
 	clearTeam.addEventListener("click", function() {
-		filterTeam.value = "";
-		sessionStorage.setItem("filterTeam", "");
-		createFilterData(tableData);
+		clearFilterData(tableData, "filterTeam")
 	});
 	clearManufacturer.addEventListener("click", function() {
-		filterManufacturer.value = "";
-		sessionStorage.setItem("filterManufacturer", "");
-		createFilterData(tableData);
+		clearFilterData(tableData, "filterManufacturer")
 	});
 	clearYear.addEventListener("click", function() {
-		filterYear.value = "";
-		sessionStorage.setItem("filterYear", "");
-		createFilterData(tableData);
+		clearFilterData(tableData, "filterYear")
 	});
 	clearOther.addEventListener("click", function() {
-		filterOther.value = "";
-		sessionStorage.setItem("filterOther", "");
-		createFilterData(tableData);
+		clearFilterData(tableData, "filterOther")
 	});
 
 	// Clear all filters from both the page and sessionStorage and reload
@@ -373,6 +384,7 @@ function finishLoading(tableData, filterData) {
 		sessionStorage.setItem("pageNum", pageSelect.value);
 		clearPage();
 		
+		window.scrollTo(0, 0);
 		// If user used one or more filters, reload the page corresponding to filterData
 		// If not, reload corresponding to the full table
 		if(sessionStorage.getItem("filterData") != null){
@@ -381,6 +393,12 @@ function finishLoading(tableData, filterData) {
 			generateMain(tableData, sessionStorage.getItem("pageNum"));
 		}
 	});
+}
+
+function clearFilterData(tableData, filter){
+	document.getElementById(filter).value = "";
+	sessionStorage.setItem(filter, "");
+	createFilterData(tableData);
 }
 
 window.addEventListener("load", function() {

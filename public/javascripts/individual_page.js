@@ -21,28 +21,32 @@ function fillPage(data){
 	document.getElementById("manufacturer").innerHTML = data.manufacturer;
 	document.getElementById("year").innerHTML = data.year;
 
-	document.getElementById("image0").src = "images/" + data.image0;
-	if(data.image0 != "NoImageAvailable.jpg"){
-		document.getElementById("image0Link").href = "images/" + data.image0;
-	}
-
-	document.getElementById("image1").src = "images/" + data.image1;
-	if(data.image1 != "NoImageAvailable.jpg"){
-		document.getElementById("image1Link").href = "images/" + data.image1;
-	}
-
-	document.getElementById("imageCar").src = "images/" + data.imageCar;
-	if(data.imageCar != "NoImageAvailable.jpg"){
-		document.getElementById("imageCarLink").href = "images/" + data.imageCar;
-	}
-
-	document.getElementById("imageDriver").src = "images/" + data.imageDriver;
-	if(data.imageDriver != "NoImageAvailable.jpg"){
-		document.getElementById("imageDriverLink").href = "images/" + data.imageDriver;
-	}
+	// Check if each image exists and display accordingly
+	checkImage("image0", data.image0);
+	checkImage("image1", data.image1);
+	checkImage("imageCar", data.imageCar);
+	checkImage("imageDriver", data.imageDriver);
 }
 
-$(document).ready(function() {
+function checkImage(type, image){
+	var imagePath = "images/" + image;
+	// Check if image exists. If so, display it
+	// If not, throw error
+	fetch(imagePath) 
+		.then(response => { 
+			if (!response.ok) {
+				throw new Error("Image not found");
+			} else {
+				document.getElementById(type).src = "images/" + image;
+				document.getElementById(type + "Link").href = "images/" + image; 
+			} 
+		}) 
+		.catch(error => { 
+			console.log(error); 
+		});
+}
+
+window.addEventListener("load", function() {
 	var carArray;
 
 	// If a search was made, use that subset
