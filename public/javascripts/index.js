@@ -35,7 +35,7 @@ const getTableData = async () => {
 	}
 };
 
-function generateMain(tableData, pageNum){
+/*function generateMain(tableData, pageNum){
 	var currentRow, newDiv, newLink, newImg, newP;
 	var resultsCounter = document.getElementById("resultsCounter");
 
@@ -165,6 +165,47 @@ function generateMain(tableData, pageNum){
 		});
 		sessionStorage.removeItem("savedID");
 	}
+}*/
+
+function generateMain(tableData, pageNum){
+	var resultsCounter = document.getElementById("resultsCounter");
+	console.log(tableData);
+
+	var numCars = tableData.length;
+	var carsPerPage = 50;
+	var index = pageNum * carsPerPage;
+
+	for(var i = 0; i < carsPerPage; i++){
+		if(index >= numCars){
+			break;
+		}
+		
+		document.getElementById("link" + i).href = "individual_page.html?" + tableData[index].id;
+		document.getElementById("image" + i).src = "thumbnails/" + tableData[index].image0;
+		document.getElementById("result" + i).innerHTML = tableData[index].number + " - " + tableData[index].driver;
+
+		index++;
+	}
+
+	// Update text to display info about results on current page
+	var startingNum = Math.min(numCars, ((carsPerPage * parseInt(pageNum)) + 1));
+	var endingNum = Math.min(numCars, carsPerPage * (parseInt(pageNum) + 1));
+	resultsCounter.innerHTML = "Displaying " + startingNum + " - "
+		+ endingNum + " of " + numCars + " results";
+
+	// Add appropriate number of page select options
+	var pageSelect = document.getElementById("pageSelect");
+	for(var m = 2; m < Math.ceil(numCars / carsPerPage) + 1; m++){
+		pageSelect.options.add(new Option(m, m - 1));
+	}
+	if(pageSelect.length == 1){
+		pageSelect.disabled = true;
+	} else {
+		pageSelect.disabled = false;
+	}
+
+	// Correct the starting page select value
+	pageSelect.value = pageNum;
 }
 
 /*const checkImages = async (tableData, carIDs) => {
@@ -198,11 +239,17 @@ function clearPage() {
 	}
 
 	// Delete all previous dynamic HTML
-	for(var j = 49; j > -1; j--){
+	/*for(var j = 49; j > -1; j--){
 		var thisRow = document.getElementById("row" + j);
 		if(thisRow){
 			thisRow.remove();
 		}
+	}*/
+
+	for(var i = 0; i < 50; i++){
+		document.getElementById("link" + i).href = "";
+		document.getElementById("image" + i).src = "";
+		document.getElementById("result" + i).innerHTML = "";
 	}
 }
 
