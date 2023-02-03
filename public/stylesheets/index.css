@@ -30,8 +30,9 @@ html, body {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  height: 127px;
-  width: 192px;
+  height: 113px;
+  width: 170px;
+  cursor:  pointer;
 }
 
 .filterRow {
@@ -92,13 +93,15 @@ html, body {
   position:  relative;
   margin: 50px auto;
   bottom:  25px;
+  font-size: 16px;
   text-align: center;
 }
 
-.paginationLabel {
+/*.paginationLabel {
   display: block;
   position:  relative;
+  font-size: 16px;
   text-align: center;
   top: 43px;
   right: 45px;
-}
+}*/

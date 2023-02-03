@@ -51,7 +51,7 @@ function generateMain(tableData, pageNum){
 	// Set number of columns to how many can fit on current window size, or 1 if super small
 	// Get number of rows by dividing number of cars by number of columns
 	// Then add appropriate number of extra rows for overflow
-	var numCols = Math.max(1, Math.floor(window.innerWidth / 202));
+	var numCols = Math.max(1, Math.floor(window.innerWidth / 180));
 	var numRows = Math.round(carsPerPage / numCols);
 	var extraRows = Math.ceil((carsPerPage - (numRows * numCols)) / numCols);
 	numRows += extraRows;
@@ -153,8 +153,9 @@ function generateMain(tableData, pageNum){
 		pageSelect.disabled = false;
 	}
 
-	// Correct the starting page select value
+	// Correct the starting page select and sort select values
 	pageSelect.value = pageNum;
+	sortSelect.value = sessionStorage.getItem("sortType");
 
 	// If returning from individual page, center last viewed car on the page
 	if(sessionStorage.getItem("savedID") != null){
@@ -204,6 +205,122 @@ function clearPage() {
 			thisRow.remove();
 		}
 	}
+}
+
+function sortTable(tableData, isFilter, sort){
+	// Lists storing the proper order for certain fields
+	// NOT A VERY EFFICIENT WAY OF DOING THE NUMBERS
+	// TRY TO IMPROVE LATER
+	var numberOrder = ["00", "0", "01", "1", "02", "2", "03", "3", "04", "4",
+		"05", "5", "06", "6", "07", "7", "08", "8", "09", "9", "10",
+		"11", "12", "13", "14", "15", "16", "17", "18", "19", "20",
+		"21", "22", "23", "24", "25", "26", "27", "28", "29", "30",
+		"31", "32", "33", "34", "35", "36", "37", "38", "39", "40",
+		"41", "42", "43", "44", "45", "46", "47", "48", "49", "50",
+		"51", "52", "53", "54", "55", "56", "57", "58", "59", "60",
+		"61", "62", "63", "64", "65", "66", "67", "68", "69", "70",
+		"71", "72", "73", "74", "75", "76", "77", "78", "79", "80",
+		"81", "82", "83", "84", "85", "86", "87", "88", "89", "90",
+		"91", "92", "93", "94", "95", "96", "97", "98", "99"];
+	var seriesOrder = ["Cup", "Xfinity", "Truck", "ARCA", "None"];
+	var manufacturerOrder = ["Buick", "Chevrolet", "Dodge", "Ford",
+		"Oldsmobile", "Plymouth", "Pontiac", "Toyota", "None"];
+
+	// Sort in order of Number -> Series -> Year first, unless
+	// specific sort categories are chosen
+	if(sort !== "0" && sort !== "4" && sort !== "8"){
+		tableData.sort(function(a, b){
+			return a.year - b.year;
+		});
+		tableData.sort(function(a, b){
+			return seriesOrder.indexOf(a.series) - seriesOrder.indexOf(b.series);
+		});
+		tableData.sort(function(a, b){
+			return numberOrder.indexOf(a.number) - numberOrder.indexOf(b.number);
+		});	
+	}
+
+	// Perform the last sort depending on chosen option
+	switch(sort){
+		case "0":		// ID 
+			tableData.sort(function(a, b){
+				return a.id - b.id;
+			});
+			break;
+		case "1":		// First Name
+			tableData.sort(function(a, b){
+				var x = a.driver;
+				var y = b.driver;
+				return x == y ? 0 : x > y ? 1 : -1;
+			});
+			break;
+		case "2":		// Last Name
+			tableData.sort(function(a, b){
+				var x = a.driver.substring(a.driver.indexOf(' ') + 1);
+				var y = b.driver.substring(b.driver.indexOf(' ') + 1);
+				return x == y ? 0 : x > y ? 1 : -1;
+			});
+			break;
+		case "3": 		// Number
+			break;
+		case "4": 		// Series
+			tableData.sort(function(a, b){
+				return a.year - b.year;
+			});
+			tableData.sort(function(a, b){
+				return numberOrder.indexOf(a.number) - numberOrder.indexOf(b.number);
+			});
+			tableData.sort(function(a, b){
+				return seriesOrder.indexOf(a.series) - seriesOrder.indexOf(b.series);
+			});
+			break;
+		case "5":		// Sponsor
+			tableData.sort(function(a, b){
+				var x = a.sponsor.replace('#','').toLowerCase();
+				var y = b.sponsor.replace('#','').toLowerCase();
+				return x == y ? 0 : x > y ? 1 : -1;
+			});
+			break;
+		case "6":		// Team
+			tableData.sort(function(a, b){
+				var x = a.team.toLowerCase();
+				var y = b.team.toLowerCase();
+				return x == y ? 0 : x > y ? 1 : -1;
+			});
+			break;
+		case "7":		// Manufacturer
+			tableData.sort(function(a, b){
+				return manufacturerOrder.indexOf(a.manufacturer)
+					- manufacturerOrder.indexOf(b.manufacturer);
+			});
+			break;
+		case "8": 		// Year
+			// Sort in order of Year -> Series -> Number
+			tableData.sort(function(a, b){
+				return numberOrder.indexOf(a.number) - numberOrder.indexOf(b.number);
+			});
+			tableData.sort(function(a, b){
+				return seriesOrder.indexOf(a.series) - seriesOrder.indexOf(b.series);
+			});
+			tableData.sort(function(a, b){
+				return a.year - b.year;
+			});
+			break;
+		default:
+			break;
+	}
+	
+	// If using filterData, replace in sessionStorage with sorted data
+	// If not, replace tableData
+	if(isFilter){
+		sessionStorage.setItem("filterData", JSON.stringify(tableData));
+	} else {
+		sessionStorage.setItem("tableData", JSON.stringify(tableData));
+	}
+
+	// Rebuild page
+	clearPage();
+	generateMain(tableData, sessionStorage.getItem("pageNum"));
 }
 
 function createFilterData(tableData) {
@@ -287,7 +404,6 @@ function createFilterData(tableData) {
 	// Regenerate page
 	clearPage();
 	generateMain(filterData, sessionStorage.getItem("pageNum"));
-
 }
 
 function finishLoading(tableData, filterData) {
@@ -295,6 +411,10 @@ function finishLoading(tableData, filterData) {
 	// If not, use full table data
 	if(sessionStorage.getItem("pageNum") == null){
 		sessionStorage.setItem("pageNum", 0);
+	}
+	if(sessionStorage.getItem("sortType") == null){
+		sessionStorage.setItem("sortType", 0);
+		console.log(sessionStorage.getItem("sortType"));
 	}
 	if(filterData != null){
 		generateMain(filterData, sessionStorage.getItem("pageNum"));
@@ -311,19 +431,6 @@ function finishLoading(tableData, filterData) {
 	filterManufacturer.value = sessionStorage.getItem("filterManufacturer");
 	filterYear.value = sessionStorage.getItem("filterYear");
 	filterOther.value = sessionStorage.getItem("filterOther");
-
-	var filters = document.getElementById("filters");
-	var pageSelect = document.getElementById("pageSelect");
-
-	var clearDriver = document.getElementById("clearDriver");
-	var clearNumber = document.getElementById("clearNumber");
-	var clearSeries = document.getElementById("clearSeries");
-	var clearSponsor = document.getElementById("clearSponsor");
-	var clearTeam = document.getElementById("clearTeam");
-	var clearManufacturer = document.getElementById("clearManufacturer");
-	var clearYear = document.getElementById("clearYear");
-	var clearOther = document.getElementById("clearOther");
-	var clearAll = document.getElementById("clearAll");
 
 	// Filter results in real time as characters are typed
 	filters.addEventListener("keyup", function(event) {
@@ -391,6 +498,15 @@ function finishLoading(tableData, filterData) {
 			generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
 		} else {
 			generateMain(tableData, sessionStorage.getItem("pageNum"));
+		}
+	});
+
+	sortSelect.addEventListener("change", function() {
+		sessionStorage.setItem("sortType", sortSelect.value);
+		if(sessionStorage.getItem("filterData") != null){
+			sortTable(filterData, true, sortSelect.value);
+		} else {
+			sortTable(tableData, false, sortSelect.value);
 		}
 	});
 }

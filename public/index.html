@@ -61,7 +61,24 @@
 
     <p id="resultsCounter"></p>
 
-    <label for="pages" class="paginationLabel">Page:</label>
+    <center>
+      <p>Sort By:</p>
+    </center>
+    <select name="sort" class="pagination" id="sortSelect">
+      <option value="0" selected>ID</option>
+      <option value="1">First Name</option>
+      <option value="2">Last Name</option>
+      <option value="3">Number</option>
+      <option value="4">Series</option>
+      <option value="5">Sponsor</option>
+      <option value="6">Team</option>
+      <option value="7">Manufacturer</option>
+      <option value="8">Year</option>
+    </select>
+
+    <center>
+      <p>Page:</p>
+    </center>
     <select name="pages" class="pagination" id="pageSelect">
       <option value="0" selected>1</option>
     </select>
