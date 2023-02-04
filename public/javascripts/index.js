@@ -7,18 +7,18 @@
 // page, and handles the filter functionality
 
 const getTableData = async () => {
-	var tableData = [];
-	var filterData = null;
+	//var tableData = [];
+	//var filterData = null;
 	// If data is already in sessionStorage, load it into tableData
 	// If not, perform SQL query and load that into tableData AND sessionStorage
 	// After either is done, call finishLoading() to continue
 	if(sessionStorage.getItem("tableData") != null){
-		tableData = JSON.parse(sessionStorage.getItem("tableData"));
+		//tableData = JSON.parse(sessionStorage.getItem("tableData"));
 		// Set filterData if it exists
-		if(sessionStorage.getItem("filterData") != null){
-			filterData = JSON.parse(sessionStorage.getItem("filterData"));
-		}
-		finishLoading(tableData, filterData);
+		//if(sessionStorage.getItem("filterData") != null){
+			//filterData = JSON.parse(sessionStorage.getItem("filterData"));
+		//}
+		finishLoading();
 	} else {
 		// Send a POST request invoking "/tableData" route found in app.js
 		$.post({
@@ -26,8 +26,8 @@ const getTableData = async () => {
 			url: "/tableData",
 			success: function(data, ) {
 				sessionStorage.setItem("tableData", JSON.stringify(data));
-				tableData = JSON.parse(sessionStorage.getItem("tableData"));
-				finishLoading(tableData, filterData);
+				//tableData = JSON.parse(sessionStorage.getItem("tableData"));
+				finishLoading();
 			}
 		}).fail(function(jqxhr, settings, ex) {
 			console.log("Could not access table");
@@ -35,17 +35,14 @@ const getTableData = async () => {
 	}
 };
 
-function generateMain(tableData, pageNum){
+function generateMain(data, pageNum){
 	var currentRow, newDiv, newLink, newImg, newP;
 	var resultsCounter = document.getElementById("resultsCounter");
 
-	// If results have already been generated, clear the page before regenerating
-	// (Primarily for the resizing function)
-	if(document.getElementById("row0") != null){
-		clearPage();
-	}
+	// Clear the page of any previous dynamic HTML
+	clearPage();
 
-	var numCars = tableData.length;
+	var numCars = data.length;
 	var carsPerPage = 50;
 
 	// Set number of columns to how many can fit on current window size, or 1 if super small
@@ -94,9 +91,9 @@ function generateMain(tableData, pageNum){
 				newImg = document.createElement("img");
 				newP = document.createElement("p");
 
-				newLink.href = "individual_page.html?" + tableData[j].id;
-				newImg.setAttribute("id", "image" + tableData[j].id);
-				newP.setAttribute("id", "result" + tableData[j].id);
+				newLink.href = "individual_page.html?" + data[j].id;
+				newImg.setAttribute("id", "image" + data[j].id);
+				newP.setAttribute("id", "result" + data[j].id);
 
 				newLink.appendChild(newImg);
 				newLink.appendChild(newP);
@@ -130,31 +127,58 @@ function generateMain(tableData, pageNum){
 		if(counter == carsPerPage){
 			break;
 		}
-		document.getElementById("result" + tableData[k].id).innerHTML = tableData[k].number + " - " + tableData[k].driver;
-		document.getElementById("image" + tableData[k].id).src = "thumbnails/" + tableData[k].image0;
+		document.getElementById("result" + data[k].id).innerHTML = data[k].number + " - " + data[k].driver;
+		document.getElementById("image" + data[k].id).src = "thumbnails/" + data[k].image0;
 
 		// Add car ID to array for image checking
-		//carIDs.push(tableData[k].id);
+		//carIDs.push(data[k].id);
 
 		counter++;
 	}
 
 	// Check if image0 exists for all cars on page
-	//checkImages(tableData, carIDs);
+	//checkImages(data, carIDs);
 
-	// Add appropriate number of page select options
+	// Add appropriate number of page buttons
 	var pageSelect = document.getElementById("pageSelect");
 	for(var m = 2; m < Math.ceil(numCars / carsPerPage) + 1; m++){
-		pageSelect.options.add(new Option(m, m - 1));
-	}
-	if(pageSelect.length == 1){
-		pageSelect.disabled = true;
-	} else {
-		pageSelect.disabled = false;
+		var prevPage = document.getElementById("page" + (m - 2));
+
+		var newPage = document.createElement("a");
+		newPage.setAttribute("id", "page" + (m - 1));
+		newPage.href = "#" + (m - 1);
+		newPage.innerHTML = m;
+		
+		prevPage.insertAdjacentElement("afterend", newPage);
 	}
 
-	// Correct the starting page select and sort select values
-	pageSelect.value = pageNum;
+	// Add event listeners for dynamically generated page numbers
+	for(const page of pageSelect.children){
+		if(page.id != "page0" && page.id != "pagePrev" && page.id != "pageNext"){
+			page.addEventListener("click", function() {
+				// Set the page number in sessionStorage
+				sessionStorage.setItem("pageNum", (page.innerHTML - 1));
+				window.scrollTo(0, 0);
+
+				// If user used one or more filters, reload the page corresponding to filterData
+				// If not, reload corresponding to the full table
+				if(sessionStorage.getItem("filterData") != null){
+					generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
+				} else {
+					generateMain(JSON.parse(sessionStorage.getItem("tableData")), sessionStorage.getItem("pageNum"));
+				}
+			});
+		}
+	}
+
+	// Reassign the active class to the active page
+	var activePage = document.getElementsByClassName("active")[0];
+	if(activePage){
+		activePage.setAttribute("class", "");
+	}
+	document.getElementById("page" + pageNum).setAttribute("class", "active");
+
+	// Correct the starting sort select value
 	sortSelect.value = sessionStorage.getItem("sortType");
 
 	// If returning from individual page, center last viewed car on the page
@@ -168,11 +192,11 @@ function generateMain(tableData, pageNum){
 	}
 }
 
-/*const checkImages = async (tableData, carIDs) => {
+/*const checkImages = async (data, carIDs) => {
 	// Iterate through list of cars and check if image0 exists
 	// for all of them. If so, display it. If not, display default image
 	const promises = await carIDs.map(async item => {
-		var car = tableData.find(o => o.id == item);
+		var car = data.find(o => o.id == item);
 		fetch("thumbnails/" + car.image0) 
 			.then(response => { 
 				if (!response.ok) {
@@ -192,10 +216,15 @@ function clearPage() {
 	// NOT GREAT
 	// IMPROVE LATER
 
-	// Delete all page select options
+	// Delete all page select buttons
 	var pageSelect = document.getElementById("pageSelect");
-	for(var i = pageSelect.options.length - 1; i > 0; i--){
-		pageSelect.remove(i);
+	var numElements = pageSelect.children.length;
+	var lastPage = pageSelect.children[numElements - 2].innerHTML;
+	for(var i = lastPage; i > 0; i--){
+		var page = document.getElementById("page" + i);
+		if(page){
+			page.remove(i);
+		}
 	}
 
 	// Delete all previous dynamic HTML
@@ -207,7 +236,7 @@ function clearPage() {
 	}
 }
 
-function sortTable(tableData, isFilter, sort){
+function sortTable(data, isFilter, sort){
 	// Lists storing the proper order for certain fields
 	// NOT A VERY EFFICIENT WAY OF DOING THE NUMBERS
 	// TRY TO IMPROVE LATER
@@ -229,13 +258,13 @@ function sortTable(tableData, isFilter, sort){
 	// Sort in order of Number -> Series -> Year first, unless
 	// specific sort categories are chosen
 	if(sort !== "0" && sort !== "4" && sort !== "8"){
-		tableData.sort(function(a, b){
+		data.sort(function(a, b){
 			return a.year - b.year;
 		});
-		tableData.sort(function(a, b){
+		data.sort(function(a, b){
 			return seriesOrder.indexOf(a.series) - seriesOrder.indexOf(b.series);
 		});
-		tableData.sort(function(a, b){
+		data.sort(function(a, b){
 			return numberOrder.indexOf(a.number) - numberOrder.indexOf(b.number);
 		});	
 	}
@@ -243,19 +272,19 @@ function sortTable(tableData, isFilter, sort){
 	// Perform the last sort depending on chosen option
 	switch(sort){
 		case "0":		// ID 
-			tableData.sort(function(a, b){
+			data.sort(function(a, b){
 				return a.id - b.id;
 			});
 			break;
 		case "1":		// First Name
-			tableData.sort(function(a, b){
+			data.sort(function(a, b){
 				var x = a.driver;
 				var y = b.driver;
 				return x == y ? 0 : x > y ? 1 : -1;
 			});
 			break;
 		case "2":		// Last Name
-			tableData.sort(function(a, b){
+			data.sort(function(a, b){
 				var x = a.driver.substring(a.driver.indexOf(' ') + 1);
 				var y = b.driver.substring(b.driver.indexOf(' ') + 1);
 				return x == y ? 0 : x > y ? 1 : -1;
@@ -264,45 +293,45 @@ function sortTable(tableData, isFilter, sort){
 		case "3": 		// Number
 			break;
 		case "4": 		// Series
-			tableData.sort(function(a, b){
+			data.sort(function(a, b){
 				return a.year - b.year;
 			});
-			tableData.sort(function(a, b){
+			data.sort(function(a, b){
 				return numberOrder.indexOf(a.number) - numberOrder.indexOf(b.number);
 			});
-			tableData.sort(function(a, b){
+			data.sort(function(a, b){
 				return seriesOrder.indexOf(a.series) - seriesOrder.indexOf(b.series);
 			});
 			break;
 		case "5":		// Sponsor
-			tableData.sort(function(a, b){
+			data.sort(function(a, b){
 				var x = a.sponsor.replace('#','').toLowerCase();
 				var y = b.sponsor.replace('#','').toLowerCase();
 				return x == y ? 0 : x > y ? 1 : -1;
 			});
 			break;
 		case "6":		// Team
-			tableData.sort(function(a, b){
+			data.sort(function(a, b){
 				var x = a.team.toLowerCase();
 				var y = b.team.toLowerCase();
 				return x == y ? 0 : x > y ? 1 : -1;
 			});
 			break;
 		case "7":		// Manufacturer
-			tableData.sort(function(a, b){
+			data.sort(function(a, b){
 				return manufacturerOrder.indexOf(a.manufacturer)
 					- manufacturerOrder.indexOf(b.manufacturer);
 			});
 			break;
 		case "8": 		// Year
-			// Sort in order of Year -> Series -> Number
-			tableData.sort(function(a, b){
-				return numberOrder.indexOf(a.number) - numberOrder.indexOf(b.number);
-			});
-			tableData.sort(function(a, b){
+			// Sort in order of Year -> Number -> Series
+			data.sort(function(a, b){
 				return seriesOrder.indexOf(a.series) - seriesOrder.indexOf(b.series);
 			});
-			tableData.sort(function(a, b){
+			data.sort(function(a, b){
+				return numberOrder.indexOf(a.number) - numberOrder.indexOf(b.number);
+			});
+			data.sort(function(a, b){
 				return a.year - b.year;
 			});
 			break;
@@ -311,20 +340,20 @@ function sortTable(tableData, isFilter, sort){
 	}
 	
 	// If using filterData, replace in sessionStorage with sorted data
-	// If not, replace tableData
+	// If not, replace data
 	if(isFilter){
-		sessionStorage.setItem("filterData", JSON.stringify(tableData));
+		sessionStorage.setItem("filterData", JSON.stringify(data));
 	} else {
-		sessionStorage.setItem("tableData", JSON.stringify(tableData));
+		sessionStorage.setItem("tableData", JSON.stringify(data));
 	}
 
 	// Rebuild page
-	clearPage();
-	generateMain(tableData, sessionStorage.getItem("pageNum"));
+	generateMain(data, sessionStorage.getItem("pageNum"));
 }
 
-function createFilterData(tableData) {
+function createFilterData() {
 	var filterData = [];
+	var data = JSON.parse(sessionStorage.getItem("tableData"));
 	var pageSelect = document.getElementById("pageSelect");
 
 	// Delete previous filters if they exist
@@ -369,28 +398,27 @@ function createFilterData(tableData) {
 		teamValue.length == 0 && manufacturerValue.length == 0 &&
 		yearValue.length == 0 && otherValue == 0){
 		sessionStorage.removeItem("filterData");
-		clearPage();
-		generateMain(tableData, 0);
+		generateMain(data, 0);
 		return;
 	}
 
-	// If any entries in tableData match ALL inputs, add it to filterData
-	for(var i = 0; i < tableData.length; i++){
+	// If any entries in data match ALL inputs, add it to filterData
+	for(var i = 0; i < data.length; i++){
 		// Get and format table data to match inputted terms
-		var currentDriver = tableData[i].driver.replace(/\./g, '').replace(/\//g, ' ').toLowerCase();
-		var currentNumber = tableData[i].number;
-		var currentSeries = tableData[i].series.toLowerCase();
-		var currentSponsor = tableData[i].sponsor.replace(/[\.\'#\:\?\$,]/g, '').replace(/[-\/]/g, ' ').replace(/\s{2,}/g, ' ').toLowerCase();
-		var currentTeam = tableData[i].team.replace(/[/-\/]/g, ' ').replace(/[\.,]/g, '').toLowerCase();
-		var currentManufacturer = tableData[i].manufacturer.toLowerCase();
-		var currentYear = tableData[i].year;
-		var currentOther = tableData[i].other.replace(/[\.\'#\:\?\$,]/g, '').replace(/[-\/]/g, ' ').replace(/\s{2,}/g, ' ').toLowerCase();
+		var currentDriver = data[i].driver.replace(/\./g, '').replace(/\//g, ' ').toLowerCase();
+		var currentNumber = data[i].number;
+		var currentSeries = data[i].series.toLowerCase();
+		var currentSponsor = data[i].sponsor.replace(/[\.\'#\:\?\$,]/g, '').replace(/[-\/]/g, ' ').replace(/\s{2,}/g, ' ').toLowerCase();
+		var currentTeam = data[i].team.replace(/[/-\/]/g, ' ').replace(/[\.,]/g, '').toLowerCase();
+		var currentManufacturer = data[i].manufacturer.toLowerCase();
+		var currentYear = data[i].year;
+		var currentOther = data[i].other.replace(/[\.\'#\:\?\$,]/g, '').replace(/[-\/]/g, ' ').replace(/\s{2,}/g, ' ').toLowerCase();
 
 		if(currentDriver.includes(driverValue) && currentNumber.includes(numberValue)
 			&& currentSeries.includes(seriesValue) && currentSponsor.includes(sponsorValue)
 			&& currentTeam.includes(teamValue) && currentManufacturer.includes(manufacturerValue)
 			&& currentYear.includes(yearValue) && currentOther.includes(otherValue)){
-			filterData.push(tableData[i]);
+			filterData.push(data[i]);
 		}
 	}
 
@@ -399,27 +427,26 @@ function createFilterData(tableData) {
 	
 	// Reset page number
 	sessionStorage.setItem("pageNum", 0);
-	pageSelect.value = 0;
 
 	// Regenerate page
-	clearPage();
 	generateMain(filterData, sessionStorage.getItem("pageNum"));
 }
 
-function finishLoading(tableData, filterData) {
-	// Generate dynamic HTML using filterData if it exists
-	// If not, use full table data
+function finishLoading() {
+
 	if(sessionStorage.getItem("pageNum") == null){
 		sessionStorage.setItem("pageNum", 0);
 	}
 	if(sessionStorage.getItem("sortType") == null){
 		sessionStorage.setItem("sortType", 0);
-		console.log(sessionStorage.getItem("sortType"));
 	}
-	if(filterData != null){
-		generateMain(filterData, sessionStorage.getItem("pageNum"));
+
+	// Generate dynamic HTML using filterData if it exists
+	// If not, use full table data
+	if(sessionStorage.getItem("filterData") != null){
+		generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
 	} else {
-		generateMain(tableData, sessionStorage.getItem("pageNum"));
+		generateMain(JSON.parse(sessionStorage.getItem("tableData")), sessionStorage.getItem("pageNum"));
 	}
 
 	// Set filters to those found in sessionStorage
@@ -434,33 +461,33 @@ function finishLoading(tableData, filterData) {
 
 	// Filter results in real time as characters are typed
 	filters.addEventListener("keyup", function(event) {
-		createFilterData(tableData);
+		createFilterData();
 	});
 
 	// Clear data only from respective filter and reload
 	clearDriver.addEventListener("click", function() {
-		clearFilterData(tableData, "filterDriver")
+		clearFilterData("filterDriver");
 	});
 	clearNumber.addEventListener("click", function() {
-		clearFilterData(tableData, "filterNumber")
+		clearFilterData("filterNumber");
 	});
 	clearSeries.addEventListener("click", function() {
-		clearFilterData(tableData, "filterSeries")
+		clearFilterData("filterSeries");
 	});
 	clearSponsor.addEventListener("click", function() {
-		clearFilterData(tableData, "filterSponsor")
+		clearFilterData("filterSponsor");
 	});
 	clearTeam.addEventListener("click", function() {
-		clearFilterData(tableData, "filterTeam")
+		clearFilterData("filterTeam");
 	});
 	clearManufacturer.addEventListener("click", function() {
-		clearFilterData(tableData, "filterManufacturer")
+		clearFilterData("filterManufacturer");
 	});
 	clearYear.addEventListener("click", function() {
-		clearFilterData(tableData, "filterYear")
+		clearFilterData("filterYear");
 	});
 	clearOther.addEventListener("click", function() {
-		clearFilterData(tableData, "filterOther")
+		clearFilterData("filterOther");
 	});
 
 	// Clear all filters from both the page and sessionStorage and reload
@@ -483,38 +510,97 @@ function finishLoading(tableData, filterData) {
 		sessionStorage.setItem("filterYear", "");
 		sessionStorage.setItem("filterOther", "");
 
-		createFilterData(tableData);
+		createFilterData();
 	});
 
-	// Reload page for corresponding selection
-	pageSelect.addEventListener("change", function() {
-		sessionStorage.setItem("pageNum", pageSelect.value);
-		clearPage();
-		
+	page0.addEventListener("click", function() {
+		// Set to page 0
+		sessionStorage.setItem("pageNum", 0);
 		window.scrollTo(0, 0);
+
 		// If user used one or more filters, reload the page corresponding to filterData
 		// If not, reload corresponding to the full table
 		if(sessionStorage.getItem("filterData") != null){
 			generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
 		} else {
-			generateMain(tableData, sessionStorage.getItem("pageNum"));
+			generateMain(JSON.parse(sessionStorage.getItem("tableData")), sessionStorage.getItem("pageNum"));
+		}
+	});
+
+	pagePrev.addEventListener("click", function() {
+		// Set pageNum to previous page if not already at first page
+		if(sessionStorage.getItem("pageNum") > 0){
+			sessionStorage.setItem("pageNum", sessionStorage.getItem("pageNum") - 1);
+			window.scrollTo(0, 0);
+
+			// If user used one or more filters, reload the page corresponding to filterData
+			// If not, reload corresponding to the full table
+			if(sessionStorage.getItem("filterData") != null){
+				generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
+			} else {
+				generateMain(JSON.parse(sessionStorage.getItem("tableData")), sessionStorage.getItem("pageNum"));
+			}
+		}
+	});
+
+	pageNext.addEventListener("click", function() {
+		var tableData = JSON.parse(sessionStorage.getItem("tableData"));
+		var filterData = JSON.parse(sessionStorage.getItem("filterData"));
+		var lastPage;
+
+		// Set pageNum to next page
+		if(filterData != null){
+			lastPage = Math.ceil(filterData.length / 50) - 1;
+			if(sessionStorage.getItem("pageNum") < lastPage){
+				sessionStorage.setItem("pageNum", Number(sessionStorage.getItem("pageNum")) + 1);
+				window.scrollTo(0, 0);
+				generateMain(filterData, sessionStorage.getItem("pageNum"));
+			}
+		} else {
+			lastPage = Math.ceil(tableData.length / 50) - 1;
+			if(sessionStorage.getItem("pageNum") < lastPage){
+				sessionStorage.setItem("pageNum", Number(sessionStorage.getItem("pageNum")) + 1);
+				window.scrollTo(0, 0);
+				generateMain(tableData, sessionStorage.getItem("pageNum"));
+			}
 		}
 	});
 
 	sortSelect.addEventListener("change", function() {
+		// Sort the table accordingly
 		sessionStorage.setItem("sortType", sortSelect.value);
+		
 		if(sessionStorage.getItem("filterData") != null){
-			sortTable(filterData, true, sortSelect.value);
+			sortTable(JSON.parse(sessionStorage.getItem("filterData")), true, sortSelect.value);
 		} else {
-			sortTable(tableData, false, sortSelect.value);
+			sortTable(JSON.parse(sessionStorage.getItem("tableData")), false, sortSelect.value);
 		}
 	});
 }
 
-function clearFilterData(tableData, filter){
+/*function addPageSelect(tableData){
+	// Reload page for corresponding selection
+	for(const page of pageSelect.children){
+		page.addEventListener("click", function() {
+			sessionStorage.setItem("pageNum", (page.innerHTML - 1));
+			//clearPage();
+			
+			window.scrollTo(0, 0);
+			// If user used one or more filters, reload the page corresponding to filterData
+			// If not, reload corresponding to the full table
+			if(sessionStorage.getItem("filterData") != null){
+				generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
+			} else {
+				generateMain(tableData, sessionStorage.getItem("pageNum"));
+			}
+		});
+	}
+}*/
+
+function clearFilterData(filter){
 	document.getElementById(filter).value = "";
 	sessionStorage.setItem(filter, "");
-	createFilterData(tableData);
+	createFilterData();
 }
 
 window.addEventListener("load", function() {

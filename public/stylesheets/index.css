@@ -88,7 +88,7 @@ html, body {
   }
 }
 
-.pagination {
+.paginationSort {
   display: flex;
   position:  relative;
   margin: 50px auto;
@@ -97,11 +97,23 @@ html, body {
   text-align: center;
 }
 
-/*.paginationLabel {
-  display: block;
-  position:  relative;
-  font-size: 16px;
-  text-align: center;
-  top: 43px;
-  right: 45px;
-}*/
+.pagination {
+  display: flex;
+  margin: auto;
+  right: 100%;
+}
+
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+  margin-bottom: 100px;
+}
+
+.pagination a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.pagination a:hover:not(.active) {background-color: #ddd;}
