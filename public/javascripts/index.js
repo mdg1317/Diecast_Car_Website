@@ -1,5 +1,5 @@
 // Author: Matthew Groh
-// Last Updated: 1/26/2023
+// Last Updated: 2/10/2023
 //
 // index.js
 //
@@ -139,44 +139,71 @@ function generateMain(data, pageNum){
 	// Check if image0 exists for all cars on page
 	//checkImages(data, carIDs);
 
-	// Add appropriate number of page buttons
-	var pageSelect = document.getElementById("pageSelect");
-	for(var m = 2; m < Math.ceil(numCars / carsPerPage) + 1; m++){
-		var prevPage = document.getElementById("page" + (m - 2));
+	// Clear previously set attributes for page buttons
+	clearPageSettings();
 
-		var newPage = document.createElement("a");
-		newPage.setAttribute("id", "page" + (m - 1));
-		newPage.href = "#" + (m - 1);
-		newPage.innerHTML = m;
-		
-		prevPage.insertAdjacentElement("afterend", newPage);
+	// If on first or last page, hide respective buttons
+	var numPages = Math.floor(numCars / carsPerPage);
+	if(pageNum == 0){
+		pagePrev.style.visibility = "hidden";
+		pageFirst.style.visibility = "hidden";
+	}
+	if(pageNum == numPages){
+		pageNext.style.visibility = "hidden";
+		pageLast.style.visibility = "hidden";
 	}
 
-	// Add event listeners for dynamically generated page numbers
-	for(const page of pageSelect.children){
-		if(page.id != "page0" && page.id != "pagePrev" && page.id != "pageNext"){
-			page.addEventListener("click", function() {
-				// Set the page number in sessionStorage
-				sessionStorage.setItem("pageNum", (page.innerHTML - 1));
-				window.scrollTo(0, 0);
+	// Handle page button text/visibility depending on amount
+	// If < 5, handle in special function formatPageButtons()
+	switch(numPages){
+		case 0:
+			formatPageButtons(0, pageNum);
+			break;
+		case 1:
+			formatPageButtons(1, pageNum);
+			break;
+		case 2:
+			formatPageButtons(2, pageNum);
+			break;
+		case 3:
+			formatPageButtons(3, pageNum);
+			break;
+		default:
+			// If on page 1 or 2, set page nums to 1-5 and set active one accordingly
+			// If on last or second to last page, set page nums to last 5 and set
+			// active one accordingly
+			// If not, set active page to center button and change text accordingly
+			if (pageNum < 2){
+				page0.innerHTML = 1;
+				page1.innerHTML = 2;
+				page2.innerHTML = 3;
+				page3.innerHTML = 4;
+				page4.innerHTML = 5;
 
-				// If user used one or more filters, reload the page corresponding to filterData
-				// If not, reload corresponding to the full table
-				if(sessionStorage.getItem("filterData") != null){
-					generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
+				document.getElementById("page" + pageNum).setAttribute("class", "active");
+			} else if(pageNum > (numPages - 2)){
+				page0.innerHTML = numPages - 3;
+				page1.innerHTML = numPages - 2;
+				page2.innerHTML = numPages - 1;
+				page3.innerHTML = numPages;
+				page4.innerHTML = numPages + 1;
+
+				if(pageNum == numPages){
+					page4.setAttribute("class", "active");
 				} else {
-					generateMain(JSON.parse(sessionStorage.getItem("tableData")), sessionStorage.getItem("pageNum"));
+					page3.setAttribute("class", "active");
 				}
-			});
-		}
-	}
+			} else {
+				page0.innerHTML = parseInt(pageNum) - 1;
+				page1.innerHTML = parseInt(pageNum);
+				page2.innerHTML = parseInt(pageNum) + 1;
+				page3.innerHTML = parseInt(pageNum) + 2;
+				page4.innerHTML = parseInt(pageNum) + 3;
 
-	// Reassign the active class to the active page
-	var activePage = document.getElementsByClassName("active")[0];
-	if(activePage){
-		activePage.setAttribute("class", "");
+				page2.setAttribute("class", "active");
+			}
+			break;
 	}
-	document.getElementById("page" + pageNum).setAttribute("class", "active");
 
 	// Correct the starting sort select value
 	sortSelect.value = sessionStorage.getItem("sortType");
@@ -189,6 +216,30 @@ function generateMain(data, pageNum){
 			inline: "center"
 		});
 		sessionStorage.removeItem("savedID");
+	}
+}
+
+function formatPageButtons(key, pageNum){
+	// If the page button is valid, set its text accordingly
+	// If not, hide it
+	for(var i = 0; i < 5; i++){
+		if(i <= key){
+			document.getElementById("page" + i).innerHTML = i + 1;
+		} else {
+			document.getElementById("page" + i).style.display = "none";
+		}
+	}
+
+	// Set the active button
+	document.getElementById("page" + pageNum).setAttribute("class", "active");
+}
+
+function clearPageSettings(){
+	// Reset all page buttons
+	for(const page of pageSelect.children){
+		page.setAttribute("class", "");
+		page.style.display = "";
+		page.style.visibility = "visible";
 	}
 }
 
@@ -215,17 +266,6 @@ function generateMain(data, pageNum){
 function clearPage() {
 	// NOT GREAT
 	// IMPROVE LATER
-
-	// Delete all page select buttons
-	var pageSelect = document.getElementById("pageSelect");
-	var numElements = pageSelect.children.length;
-	var lastPage = pageSelect.children[numElements - 2].innerHTML;
-	for(var i = lastPage; i > 0; i--){
-		var page = document.getElementById("page" + i);
-		if(page){
-			page.remove(i);
-		}
-	}
 
 	// Delete all previous dynamic HTML
 	for(var j = 49; j > -1; j--){
@@ -433,7 +473,6 @@ function createFilterData() {
 }
 
 function finishLoading() {
-
 	if(sessionStorage.getItem("pageNum") == null){
 		sessionStorage.setItem("pageNum", 0);
 	}
@@ -513,16 +552,49 @@ function finishLoading() {
 		createFilterData();
 	});
 
-	page0.addEventListener("click", function() {
-		// Set to page 0
+	// Event listener for all normal page buttons
+	for(const page of pageSelect.children){
+		if(page.id != "pagePrev" && page.id != "pageNext" && page.id != "pageFirst" && page.id != "pageLast"){
+			page.addEventListener("click", function() {
+				// Set page
+				sessionStorage.setItem("pageNum", (page.innerHTML) - 1);
+				window.scrollTo(0, 0);
+
+				// If user used one or more filters, reload the page corresponding to filterData
+				// If not, reload corresponding to the full table
+				if(sessionStorage.getItem("filterData") != null){
+					generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
+				} else {
+					generateMain(JSON.parse(sessionStorage.getItem("tableData")), sessionStorage.getItem("pageNum"));
+				}
+			});
+		}
+	}
+
+	pageFirst.addEventListener("click", function() {
+		// Set to first page
 		sessionStorage.setItem("pageNum", 0);
-		window.scrollTo(0, 0);
 
 		// If user used one or more filters, reload the page corresponding to filterData
 		// If not, reload corresponding to the full table
 		if(sessionStorage.getItem("filterData") != null){
 			generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
 		} else {
+			generateMain(JSON.parse(sessionStorage.getItem("tableData")), sessionStorage.getItem("pageNum"));
+		}
+	});
+
+	pageLast.addEventListener("click", function() {
+		// If user used one or more filters, find last page based on filterData and reload page
+		// If not, find it based on tableData and reload
+		var numPages;
+		if(sessionStorage.getItem("filterData") != null){
+			numPages = Math.floor(JSON.parse(sessionStorage.getItem("filterData")).length / 50);
+			sessionStorage.setItem("pageNum", numPages);
+			generateMain(JSON.parse(sessionStorage.getItem("filterData")), sessionStorage.getItem("pageNum"));
+		} else {
+			numPages = Math.floor(JSON.parse(sessionStorage.getItem("tableData")).length / 50);
+			sessionStorage.setItem("pageNum", numPages);
 			generateMain(JSON.parse(sessionStorage.getItem("tableData")), sessionStorage.getItem("pageNum"));
 		}
 	});
@@ -550,14 +622,14 @@ function finishLoading() {
 
 		// Set pageNum to next page
 		if(filterData != null){
-			lastPage = Math.ceil(filterData.length / 50) - 1;
+			lastPage = Math.floor(filterData.length / 50);
 			if(sessionStorage.getItem("pageNum") < lastPage){
 				sessionStorage.setItem("pageNum", Number(sessionStorage.getItem("pageNum")) + 1);
 				window.scrollTo(0, 0);
 				generateMain(filterData, sessionStorage.getItem("pageNum"));
 			}
 		} else {
-			lastPage = Math.ceil(tableData.length / 50) - 1;
+			lastPage = Math.floor(tableData.length / 50);
 			if(sessionStorage.getItem("pageNum") < lastPage){
 				sessionStorage.setItem("pageNum", Number(sessionStorage.getItem("pageNum")) + 1);
 				window.scrollTo(0, 0);
@@ -569,6 +641,8 @@ function finishLoading() {
 	sortSelect.addEventListener("change", function() {
 		// Sort the table accordingly
 		sessionStorage.setItem("sortType", sortSelect.value);
+		sessionStorage.setItem("pageNum", 0);
+		window.scrollTo(0, 0);
 		
 		if(sessionStorage.getItem("filterData") != null){
 			sortTable(JSON.parse(sessionStorage.getItem("filterData")), true, sortSelect.value);
