@@ -48,7 +48,7 @@ function generateMain(data, pageNum){
 	// Set number of columns to how many can fit on current window size, or 1 if super small
 	// Get number of rows by dividing number of cars by number of columns
 	// Then add appropriate number of extra rows for overflow
-	var numCols = Math.max(1, Math.floor(window.innerWidth / 180));
+	var numCols = Math.max(1, Math.floor((document.documentElement.offsetWidth * 0.9) / 190));
 	var numRows = Math.round(carsPerPage / numCols);
 	var extraRows = Math.ceil((carsPerPage - (numRows * numCols)) / numCols);
 	numRows += extraRows;

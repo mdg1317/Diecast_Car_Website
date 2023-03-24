@@ -1,7 +1,24 @@
-html, body {
-    max-width: 100%;
+html {
+    max-width: 88%;
     overflow-x: hidden;
+    background-image: url("../images/Background.jpg");
+    background-attachment: fixed;
+    left: 0px;
+    margin: auto;
+    position: relative;
 }
+
+body {
+    overflow-x: hidden;
+    background: rgba(255, 255, 255, 1);
+    left: 0px;
+    margin: auto;
+    height: 100vh;
+}
+
+/*body::-webkit-scrollbar {
+  display: none;
+}*/
 
 .row {
   display: flex;
@@ -47,6 +64,8 @@ html, body {
   display: block;
   margin-left: auto;
   margin-right: auto;
+  top: 0;
+  bottom: 0;
   height: 270px;
   width: 405px;
   object-fit: contain;
@@ -58,9 +77,14 @@ html, body {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  height: 270px;
-  width: 405px;
+  top: 0;
+  bottom: 0;
+  height: auto;
+  width: auto;
+  max-height: 100%;
+  max-width: 100%;
   object-fit: contain;
+  border: 2px solid #000000;
 }
 
 .image a {
