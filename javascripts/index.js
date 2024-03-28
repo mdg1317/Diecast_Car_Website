@@ -21,21 +21,30 @@ const getTableData = async () => {
 		finishLoading();
 	} else {
 		// Send a POST request invoking "/tableData" route found in app.js
-		$.post({
+		/*$.post({
 			traditional: true,
-			url: "/tableData",
+			url: "index.php",
 			success: function(data, ) {
-				sessionStorage.setItem("tableData", JSON.stringify(data));
+				sessionStorage.setItem("tableData", JSON.stringify(JSON.parse(data)));
 				//tableData = JSON.parse(sessionStorage.getItem("tableData"));
 				finishLoading();
 			}
 		}).fail(function(jqxhr, settings, ex) {
+			console.log("Could not access table");
+		});*/
+		$.get("carInfo.json", function(data) {
+			//sessionStorage.setItem("tableData", JSON.stringify(JSON.parse(data)));
+			sessionStorage.setItem("tableData", JSON.stringify(data));
+			//tableData = JSON.parse(sessionStorage.getItem("tableData"));
+			finishLoading();
+		}).fail(function() {
 			console.log("Could not access table");
 		});
 	}
 };
 
 function generateMain(data, pageNum){
+  console.log(data);
 	var currentRow, newDiv, newLink, newImg, newP;
 	var resultsCounter = document.getElementById("resultsCounter");
 
@@ -48,7 +57,7 @@ function generateMain(data, pageNum){
 	// Set number of columns to how many can fit on current window size, or 1 if super small
 	// Get number of rows by dividing number of cars by number of columns
 	// Then add appropriate number of extra rows for overflow
-	var numCols = Math.max(1, Math.floor((document.documentElement.offsetWidth * 0.9) / 190));
+	var numCols = Math.max(1, Math.floor(window.innerWidth / 180));
 	var numRows = Math.round(carsPerPage / numCols);
 	var extraRows = Math.ceil((carsPerPage - (numRows * numCols)) / numCols);
 	numRows += extraRows;
@@ -291,13 +300,13 @@ function sortTable(data, isFilter, sort){
 		"71", "72", "73", "74", "75", "76", "77", "78", "79", "80",
 		"81", "82", "83", "84", "85", "86", "87", "88", "89", "90",
 		"91", "92", "93", "94", "95", "96", "97", "98", "99"];
-	var seriesOrder = ["Cup", "Xfinity", "Truck", "ARCA", "None"];
+	var seriesOrder = ["Cup", "GNS", "Truck", "ARCA", "None"];
 	var manufacturerOrder = ["Buick", "Chevrolet", "Dodge", "Ford",
 		"Oldsmobile", "Plymouth", "Pontiac", "Toyota", "None"];
 
 	// Sort in order of Number -> Series -> Year first, unless
 	// specific sort categories are chosen
-	if(sort !== "0" && sort !== "4" && sort !== "8"){
+	if(sort !== "8" && sort !== "3" && sort !== "7"){
 		data.sort(function(a, b){
 			return a.year - b.year;
 		});
@@ -311,28 +320,23 @@ function sortTable(data, isFilter, sort){
 
 	// Perform the last sort depending on chosen option
 	switch(sort){
-		case "0":		// ID 
-			data.sort(function(a, b){
-				return a.id - b.id;
-			});
+		case "0": 		// Number
 			break;
 		case "1":		// First Name
 			data.sort(function(a, b){
-				var x = a.driver;
-				var y = b.driver;
+				var x = a.firstName;
+				var y = b.firstName;
 				return x == y ? 0 : x > y ? 1 : -1;
 			});
 			break;
 		case "2":		// Last Name
 			data.sort(function(a, b){
-				var x = a.driver.substring(a.driver.indexOf(' ') + 1);
-				var y = b.driver.substring(b.driver.indexOf(' ') + 1);
+				var x = a.lastName;
+				var y = b.lastName;
 				return x == y ? 0 : x > y ? 1 : -1;
 			});
 			break;
-		case "3": 		// Number
-			break;
-		case "4": 		// Series
+		case "3": 		// Series
 			data.sort(function(a, b){
 				return a.year - b.year;
 			});
@@ -343,27 +347,27 @@ function sortTable(data, isFilter, sort){
 				return seriesOrder.indexOf(a.series) - seriesOrder.indexOf(b.series);
 			});
 			break;
-		case "5":		// Sponsor
+		case "4":		// Sponsor
 			data.sort(function(a, b){
 				var x = a.sponsor.replace('#','').toLowerCase();
 				var y = b.sponsor.replace('#','').toLowerCase();
 				return x == y ? 0 : x > y ? 1 : -1;
 			});
 			break;
-		case "6":		// Team
+		case "5":		// Team
 			data.sort(function(a, b){
 				var x = a.team.toLowerCase();
 				var y = b.team.toLowerCase();
 				return x == y ? 0 : x > y ? 1 : -1;
 			});
 			break;
-		case "7":		// Manufacturer
+		case "6":		// Manufacturer
 			data.sort(function(a, b){
 				return manufacturerOrder.indexOf(a.manufacturer)
 					- manufacturerOrder.indexOf(b.manufacturer);
 			});
 			break;
-		case "8": 		// Year
+		case "7": 		// Year
 			// Sort in order of Year -> Number -> Series
 			data.sort(function(a, b){
 				return seriesOrder.indexOf(a.series) - seriesOrder.indexOf(b.series);
@@ -373,6 +377,11 @@ function sortTable(data, isFilter, sort){
 			});
 			data.sort(function(a, b){
 				return a.year - b.year;
+			});
+			break;
+		case "8":		// ID 
+			data.sort(function(a, b){
+				return a.id - b.id;
 			});
 			break;
 		default:
@@ -478,6 +487,7 @@ function finishLoading() {
 	}
 	if(sessionStorage.getItem("sortType") == null){
 		sessionStorage.setItem("sortType", 0);
+      	sortTable(JSON.parse(sessionStorage.getItem("tableData")), false, sortSelect.value);
 	}
 
 	// Generate dynamic HTML using filterData if it exists

@@ -1,26 +1,10 @@
-html {
-    max-width: 88%;
-    overflow-x: hidden;
-    background-image: url("../images/Background.jpg");
-    background-attachment: fixed;
-    left: 0px;
-    margin: auto;
-}
-
-body {
-    overflow-x: hidden;
-    background: rgba(255, 255, 255, 1);
-    left: 0px;
-    margin: auto;
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
 }
 
 #header {
   font-size: 30px;
-}
-
-.results {
-  font-size: 16px;
-  padding-left: 10px;
 }
 
 .row {
@@ -30,8 +14,6 @@ body {
 .column {
   flex: 33.33%;
   padding: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
   text-align: center;
 }
 
@@ -51,7 +33,6 @@ body {
   height: 113px;
   width: 170px;
   cursor:  pointer;
-  border: 3px solid #000000;
 }
 
 .filterRow {
@@ -71,8 +52,6 @@ body {
 .filterColumn {
   flex: 20%;
   padding: 5px;
-  padding-left: 10px;
-  padding-right: 10px;
   text-align: center;
   display: flex;
 }
@@ -97,16 +76,16 @@ body {
 
 /* On screens that are 1280px wide or less, go from two rows to four rows */
 @media screen and (max-width: 1280px) {
-  .filterColumn {
-    flex: 33.33%;
-  }
+.filterColumn {
+  flex: 33.33%;
+}
 }
 
 /* On screens that are 720px wide or less, go from four rows to eight rows */
 @media screen and (max-width: 720px) {
-  .filterColumn {
-    flex: 50%;
-  }
+.filterColumn {
+  flex: 50%;
+}
 }
 
 .paginationSort {
@@ -137,4 +116,6 @@ body {
   color: white;
 }
 
-.pagination a:hover:not(.active) {background-color: #ddd;}
+.pagination a:hover:not(.active) {
+  background-color: #ddd;
+}
